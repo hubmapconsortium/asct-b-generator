@@ -32,8 +32,7 @@ medial ovary			AS	"medial inferior ovary, medial superior ovary"
 
 columnar ovarian surface epithelial columnar cell			CT
 
-flattened cuboidal ovarian surface epithelial cell			CT`	
+flattened cuboidal ovarian surface epithelial cell			CT
 
 corpus luteum endothelial cell			BG
 ```
-

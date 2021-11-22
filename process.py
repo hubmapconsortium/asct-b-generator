@@ -5,13 +5,15 @@ import re
 
 DEBUG = False
 
-# This should be an argument
-#HEAD = "ovary"
-HEAD = "head"
+# this will contain the top level anatomical structure (e.g., "ovary")
+head = ""
 
-# AS_LEVELS should be arguments or set programmatically. The CT_LEVELS
-# should also be 1, based on my understanding of the ASCT+B tables.
-AS_LEVELS = 3
+# AS_levels needs to be provided by the user as I don't think we can
+# compute this without generating the full tree twice, which we might
+# eventually need to do.
+AS_levels = 0
+
+# The CT_LEVELS hould also be 1, based on my understanding of the ASCT+B tables.
 CT_LEVELS = 1
 
 # compute these based on the max number of elements across cells
@@ -64,7 +66,7 @@ def output_struct(parents):
         elif s_type == "CT":
             # process cell types
             out_string = ""
-            while level < AS_LEVELS:
+            while level < AS_levels:
                 out_string += "\t\t\t"
                 level += 1
             out_string += "\t" + key + "\t" + input_dict[key]['label'] + "\t" + input_dict[key]['id']
@@ -77,19 +79,19 @@ def output_struct(parents):
 
         out_file.write(out_string)
         level = print_details(input_dict[key]['genes'],
-                              (AS_LEVELS + CT_LEVELS), level)
+                              (AS_levels + CT_LEVELS), level)
         level = print_details(input_dict[key]['proteins'],
-                              (AS_LEVELS + CT_LEVELS + BGene_levels), level)
+                              (AS_levels + CT_LEVELS + BGene_levels), level)
         level = print_details(input_dict[key]['proteoforms'],
-                              (AS_LEVELS + CT_LEVELS + BGene_levels + BProtein_levels), level)
+                              (AS_levels + CT_LEVELS + BGene_levels + BProtein_levels), level)
         level = print_details(input_dict[key]['lipids'],
-                              (AS_LEVELS + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels), level)
+                              (AS_levels + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels), level)
         level = print_details(input_dict[key]['metabolites'],
-                              (AS_LEVELS + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels + BLipid_levels), level)
+                              (AS_levels + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels + BLipid_levels), level)
         level = print_details(input_dict[key]['ftu'],
-                              (AS_LEVELS + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels + BLipid_levels + BMetabolites_levels), level)
+                              (AS_levels + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels + BLipid_levels + BMetabolites_levels), level)
         level = print_details(input_dict[key]['refs'],
-                              (AS_LEVELS + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels + BLipid_levels + BMetabolites_levels + FTU_levels), level)
+                              (AS_levels + CT_LEVELS + BGene_levels + BProtein_levels + BProteoform_levels + BLipid_levels + BMetabolites_levels + FTU_levels), level)
 
     if DEBUG:
         print()
@@ -111,7 +113,7 @@ def get_parents(leaf, parents):
             get_parents(key, parents)
 
     # if at the top level, then output the list
-    if leaf == HEAD:
+    if leaf == head:
         output_struct(parents)
 
     # remove latest structure as we back up the recursion.
@@ -131,11 +133,18 @@ def split_string(array_string, max_level):
 # execute script
 if __name__ == "__main__":
     # open input file. argv[0] is the program name
-    in_filename = sys.argv[1]
+
+    # this should be the top level anatomical structure (e.g., "ovary")
+    head = sys.argv[1]
+
+    # number AS levels
+    AS_levels = int(sys.argv[2])
+    
+    in_filename = sys.argv[3]
     in_file = open(in_filename, "r")
 
     # this will overwrite any existing file
-    out_filename = sys.argv[2]
+    out_filename = sys.argv[4]
     out_file = open(out_filename, "w")
 
     contents = in_file.readlines()
@@ -187,4 +196,3 @@ if __name__ == "__main__":
 
     in_file.close()
     out_file.close()
-

@@ -5,20 +5,34 @@ import re
 
 DEBUG = False
 
-# XXX need to fix output of gene and protein labels and ID's
-
 # This should be an argument
 #HEAD = "ovary"
 HEAD = "head"
 
-# these need to be manually set based on the organ. They should probably be arguments.
+# AS_LEVELS should be arguments or set programmatically. The CT_LEVELS
+# should also be 1, based on my understanding of the ASCT+B tables.
 AS_LEVELS = 3
-CT_LEVELS = 3
-BGene_LEVELS = 3
-BProtein_LEVELS = 2
+CT_LEVELS = 1
+
+# compute these based on the max number of elements across cells
+BGene_levels = 0
+BProtein_levels = 0
 
 input_dict = {}
 
+def print_details(entities, min_level, level):
+    if entities:
+        out_string = ""
+        while level < min_level:
+            out_string += "\t\t\t"
+            level += 1
+
+        for entity in entities:
+            out_string += "\t" + entity + "\t" + input_dict[entity]['label'] + "\t" + input_dict[entity]['id']
+            level += 1
+
+        out_file.write(out_string)
+    return level
 
 def output_struct(parents):
     # we want to go from the top level structure to the bottom level
@@ -52,33 +66,9 @@ def output_struct(parents):
             print("ERROR: erroneous child value", input_dict[key])
             continue
 
-        genes = input_dict[key]['genes']
-        if genes:
-            # process genes
-            while level < (AS_LEVELS + CT_LEVELS):
-                out_string += "\t\t\t"
-                level += 1
-
-            # XXXXX NEED to extract label and id for each gene and output them.
-            # currently we're pulling the "key" label and id not the "gene" label and id
-            for gene in genes:
-                out_string += "\t" + gene + "\t" + input_dict[key]['label'] + "\t" + input_dict[key]['id']
-                level += 1
-
-        proteins = input_dict[key]['proteins']
-        if proteins:
-            # process proteins
-            while level < (AS_LEVELS + CT_LEVELS + BGene_LEVELS):
-                out_string += "\t\t\t"
-                level += 1
-
-            # XXXXX NEED to extract label and id for each protein and output them.
-            # currently we're pulling the "key" label and id not the "protein" label and id
-            for protein in proteins:
-                out_string += "\t" + protein + "\t" + input_dict[key]['label'] + "\t" + input_dict[key]['id']
-                level += 1
-
         out_file.write(out_string)
+        level = print_details(input_dict[key]['genes'], (AS_LEVELS + CT_LEVELS), level)
+        level = print_details(input_dict[key]['proteins'], (AS_LEVELS + CT_LEVELS + BGene_levels), level)
 
     if DEBUG:
         print()
@@ -135,12 +125,18 @@ if __name__ == "__main__":
         children = []
         if children_string:
             children = children_string.split(',')
+            
         genes = []
         if genes_string:
             genes = genes_string.split(',')
+            if BGene_levels < len(genes):
+                BGene_levels = len(genes)
+                
         proteins = []
         if proteins_string:
             proteins = proteins_string.split(',')
+            if BProtein_levels < len(proteins):
+                BProtein_levels = len(proteins)
 
         # add anatomical structure to our dictionary
         input_dict.update({name:{"label":label, "id":reference, "s_type":s_type, "children":children, "genes":genes, "proteins":proteins}})
@@ -157,3 +153,4 @@ if __name__ == "__main__":
 
     in_file.close()
     out_file.close()
+

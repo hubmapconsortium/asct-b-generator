@@ -28,7 +28,7 @@ NAME (REF DOI)	LABEL (REF DETAILS)	ID (REF NOTES)	TYPE	CHILDREN	GENES	PROTEINS	P
 
 The **Type** value needs to be "AS" for anatomical structures and "CT" for cell types. It doesn't matter what type values are used for the other items, so long as it's not either AS or CT.
 
-**Children** is a common separated list of child objects. These children need to be either anatomical structures (AS) or cell types (CT). The **Genes**, **Proteins**, **Proteoforms**, etc fields should be comma separated lists of the appropriate objects (e.g., **Genes** should be a comma separated list of relevant genes). In all cases the objects **Name** or **Ref DOI** should be used.
+**Children** is a comma separated list of child objects. These children need to be either anatomical structures (AS) or cell types (CT). The **Genes**, **Proteins**, **Proteoforms**, etc fields should be comma separated lists of the appropriate objects (e.g., **Genes** should be a comma separated list of relevant genes). In all cases the objects **Name** or **Ref DOI** should be used.
 
 A header line is optional and will be ignored.
 
@@ -59,6 +59,6 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 
 ## Known problems
 
-1. The user needs to know how many levels for the anatomical structure or at least over estimate the number
+1. The user needs to know how many levels for the anatomical structures or at least over estimate the number.
 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
-3. The program doesn't insert a header line
+3. The program doesn't insert a header line in the output file.

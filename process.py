@@ -7,7 +7,7 @@ DEBUG = False
 
 # issues
 # 1. The user needs to know how many levels for the anatomical structure or at least over estimate the number
-# 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube".
+# 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
 # 3. The program doesn't insert a header line
 
 # usage

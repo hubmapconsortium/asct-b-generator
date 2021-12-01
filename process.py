@@ -9,9 +9,10 @@ DEBUG = False
 # 1. The user needs to know how many levels for the anatomical structure or at least over estimate the number
 # 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
 # 3. The program doesn't insert a header line
+# 4. Need better handling of possible header line. Currently we assume the header line, if present, begins with "name".
 
 # usage
-# ./process.py ovary 10 Ovaries-v1.txt Ovaries-ASCTB.xls
+# ./process.py ovary 10 Ovaries-v2.txt Ovaries-v2-ASCTB.xls
 
 # Ovary header
 # AS/1	AS/1/LABEL	AS/1/ID	AS/2	AS/2/LABEL	AS/2/ID	AS/3	AS/3/LABEL	AS/3/ID	AS/4	AS/4/LABEL	AS/4/ID	AS/5	AS/5/LABEL	AS/5/ID	AS/6	AS/6/LABEL	AS/6/ID	AS/7	AS/7/LABEL	AS/7/ID	AS/8	AS/8/LABEL	AS/8/ID	AS/9	AS/9/LABEL	AS/9/ID	AS/10	AS/10/LABEL	AS/10/ID	CT/1	CT/1/LABEL	CT/1/ID	BGene/1	BGene/1/LABEL	BGene/1/ID	BProtein/1	BProtein/1/LABEL	BProtein/1/ID	BProtein/2	BProtein/2/LABEL	BProtein/2/ID	BProtein/3	BProtein/3/LABEL	BProtein/3/ID	BProtein/4	BProtein/4/LABEL	BProtein/4/ID	BProtein/5	BProtein/5/LABEL	BProtein/5/ID	BProtein/6	BProtein/6/LABEL	BProtein/6/ID	BProtein/7	BProtein/7/LABEL	BProtein/7/ID	BProteoform/1	BProteoform/1/LABEL	BProteoform/1/ID	BLipid/1	BLipid/1/LABEL	BLipid/1/ID	BMetabolites/1	BMetabolites/1/LABEL	BMetabolites/1/ID	FTU/1	FTU/1/LABEL	FTU/1/ID	REF/1	REF/1/DOI	REF/1/NOTES	REF/2	REF/2/DOI	REF/2/NOTES	REF/3	REF/3/DOI	REF/3/NOTES	REF/4	REF/4/DOI	REF/4/NOTES	REF/5	REF/5/DOI	REF/5/NOTES	REF/6	REF/6/DOI	REF/6/NOTES
@@ -161,13 +162,16 @@ if __name__ == "__main__":
     out_filename = sys.argv[4]
     out_file = open(out_filename, "w")
 
+    # stop if input file is incorrect
+    found_input_error = False
+    
     contents = in_file.readlines()
     for line in contents:
         # the first line might be a header line. That's intrisically resolved as the header "shouldn't" match to any children
         name, label, reference, s_type, children_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, refs_string = re.split(r'\t', line.rstrip('\n'))
 
-        # skip header line
-        if name.lower() == "name":
+        # skip header line and assuming it begins with "name" if present.
+        if "name" in name.lower():
             continue
 
         # remove the quotes and extra spaces from the TSV file
@@ -194,19 +198,32 @@ if __name__ == "__main__":
         ftu, FTU_levels = split_string(ftu_string, FTU_levels)
         refs, REF_levels = split_string(refs_string, REF_levels)
 
-        
+        if children and (genes or proteins or proteoforms or lipids or metabolites or ftu or refs):
+            print("ERROR: genes, proteins, proteoforms, lipids, metabolites, ftu, and refs can only be applied to structures without children or to cell types")
+            print("Structure: ", name)
+            print("Children: ", children)
+            print("Genes: ", genes)
+            print("Proteins: ", proteins)
+            print("Proteoforms: ", proteoforms)
+            print("Lipids: ", lipids)
+            print("Metabolites: ", metabolites)
+            print("FTU: ", ftu)
+            print("References: ", refs)
+            found_input_error = True
+                    
         # add anatomical structure to our dictionary
         input_dict.update({name:{"label":label, "id":reference, "s_type":s_type, "children":children, "genes":genes, "proteins":proteins, "proteoforms":proteoforms, "lipids":lipids, "metabolites":metabolites, "ftu":ftu, "refs":refs }})
 
-    # all structures loaded so now we step though each structure and print out all leaves
-    for key in input_dict.keys():
-        children = input_dict[key]["children"]
-        s_type = input_dict[key]['s_type']
-        # build hierarchical structure with anatomical structures and cells.
-        if not children and (s_type in ("AS", "CT")):
-            # no children so end point and need to print upstream structures
-            parents = [key]
-            get_parents(key, parents)
+    if not found_input_error:
+        # all structures loaded so now we step though each structure and print out all leaves
+        for key in input_dict.keys():
+            children = input_dict[key]["children"]
+            s_type = input_dict[key]['s_type']
+            # build hierarchical structure with anatomical structures and cells.
+            if not children and (s_type in ("AS", "CT")):
+                # no children so end point and need to print upstream structures
+                parents = [key]
+                get_parents(key, parents)
 
     in_file.close()
     out_file.close()

@@ -128,7 +128,7 @@ def get_parents(leaf, parents):
             get_parents(key, parents)
 
     # if at the top level, then output the list
-    if leaf == head:
+    if leaf.lower() == head.lower():
         output_struct(parents)
 
     # remove latest structure as we back up the recursion.

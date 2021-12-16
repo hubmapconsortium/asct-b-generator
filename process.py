@@ -10,6 +10,7 @@ DEBUG = False
 # 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
 # 3. The program doesn't insert a header line
 # 4. Need better handling of possible header line. Currently we assume the header line, if present, begins with "name".
+# 5. blank spaces trailing a name can trip up the program.
 
 # usage
 # ./process.py ovary 10 Ovaries-v2.txt Ovaries-v2-ASCTB.xls
@@ -18,7 +19,10 @@ DEBUG = False
 # AS/1	AS/1/LABEL	AS/1/ID	AS/2	AS/2/LABEL	AS/2/ID	AS/3	AS/3/LABEL	AS/3/ID	AS/4	AS/4/LABEL	AS/4/ID	AS/5	AS/5/LABEL	AS/5/ID	AS/6	AS/6/LABEL	AS/6/ID	AS/7	AS/7/LABEL	AS/7/ID	AS/8	AS/8/LABEL	AS/8/ID	AS/9	AS/9/LABEL	AS/9/ID	AS/10	AS/10/LABEL	AS/10/ID	CT/1	CT/1/LABEL	CT/1/ID	BGene/1	BGene/1/LABEL	BGene/1/ID	BProtein/1	BProtein/1/LABEL	BProtein/1/ID	BProtein/2	BProtein/2/LABEL	BProtein/2/ID	BProtein/3	BProtein/3/LABEL	BProtein/3/ID	BProtein/4	BProtein/4/LABEL	BProtein/4/ID	BProtein/5	BProtein/5/LABEL	BProtein/5/ID	BProtein/6	BProtein/6/LABEL	BProtein/6/ID	BProtein/7	BProtein/7/LABEL	BProtein/7/ID	BProteoform/1	BProteoform/1/LABEL	BProteoform/1/ID	BLipid/1	BLipid/1/LABEL	BLipid/1/ID	BMetabolites/1	BMetabolites/1/LABEL	BMetabolites/1/ID	FTU/1	FTU/1/LABEL	FTU/1/ID	REF/1	REF/1/DOI	REF/1/NOTES	REF/2	REF/2/DOI	REF/2/NOTES	REF/3	REF/3/DOI	REF/3/NOTES	REF/4	REF/4/DOI	REF/4/NOTES	REF/5	REF/5/DOI	REF/5/NOTES	REF/6	REF/6/DOI	REF/6/NOTES
 
 # Fallopian tube header
-# AS/1	AS/1/LABEL	AS/1/ID	AS/2	AS/2/LABEL	AS/2/ID	AS/3	AS/3/LABEL	AS/3/ID	AS/4	AS/4/LABEL	AS/4/ID	AS/5	AS/5/LABEL	AS/5/ID	CT/1	CT/1/LABEL	CT/1/ID	BGene/1	BGene/1/LABEL	BGene/1/ID	BGene/2	BGene/2/LABEL	BGene/2/ID	BProtein/1	BProtein/1/LABEL	BProtein/1/ID	BProtein/2	BProtein/2/LABEL	BProtein/2/ID	BProtein/3	BProtein/3/LABEL	BProtein/3/ID	BProteoform/1	BProteoform/1/LABEL	BProteoform/1/ID	BLipid/1	BLipid/1/LABEL	BLipid/1/ID	BMetabolites/1	BMetabolites/1/LABEL	BMetabolites/1/ID	FTU/1	FTU/1/LABEL	FTU/1/ID	REF/1	REF/1/DOI	REF/1/NOTES	REF/2	REF/2/DOI	REF/2/NOTES	REF/3	REF/3/DOI	REF/3/NOTES	REF/4	REF/4/DOI	REF/4/NOTES	REF/5	REF/5/DOI	REF/5/NOTES	REF/6	REF/6/DOI	REF/6/NOTES					   
+# AS/1	AS/1/LABEL	AS/1/ID	AS/2	AS/2/LABEL	AS/2/ID	AS/3	AS/3/LABEL	AS/3/ID	AS/4	AS/4/LABEL	AS/4/ID	AS/5	AS/5/LABEL	AS/5/ID	CT/1	CT/1/LABEL	CT/1/ID	BGene/1	BGene/1/LABEL	BGene/1/ID	BGene/2	BGene/2/LABEL	BGene/2/ID	BProtein/1	BProtein/1/LABEL	BProtein/1/ID	BProtein/2	BProtein/2/LABEL	BProtein/2/ID	BProtein/3	BProtein/3/LABEL	BProtein/3/ID	BProteoform/1	BProteoform/1/LABEL	BProteoform/1/ID	BLipid/1	BLipid/1/LABEL	BLipid/1/ID	BMetabolites/1	BMetabolites/1/LABEL	BMetabolites/1/ID	FTU/1	FTU/1/LABEL	FTU/1/ID	REF/1	REF/1/DOI	REF/1/NOTES	REF/2	REF/2/DOI	REF/2/NOTES	REF/3	REF/3/DOI	REF/3/NOTES	REF/4	REF/4/DOI	REF/4/NOTES	REF/5	REF/5/DOI	REF/5/NOTES	REF/6	REF/6/DOI	REF/6/NOTES
+
+# Uterus header
+# AS/1	AS/1/LABEL	AS/1/ID	AS/2	AS/2/LABEL	AS/2/ID	AS/3	AS/3/LABEL	AS/3/ID	AS/4	AS/4/LABEL	AS/4/ID	AS/5	AS/5/LABEL	AS/5/ID	AS/6	AS/6/LABEL	AS/6/ID	AS/7	AS/7/LABEL	AS/7/ID	CT/1	CT/1/LABEL	CT/1/ID	BGene/1	BGene/1/LABEL	BGene/1/ID	BGene/2	BGene/2/LABEL	BGene/2/ID	BGene/3	BGene/3/LABEL	BGene/3/ID	BGene/4	BGene/4/LABEL	BGene/4/ID	BGene/5	BGene/5/LABEL	BGene/5/ID	BGene/6	BGene/6/LABEL	BGene/6/ID	BProtein/1	BProtein/1/LABEL	BProtein/1/ID	BProtein/2	BProtein/2/LABEL	BProtein/2/ID	BProtein/3	BProtein/3/LABEL	BProtein/3/ID	BProtein/4	BProtein/4/LABEL	BProtein/4/ID	BProtein/5	BProtein/5/LABEL	BProtein/5/ID	BProtein/6	BProtein/6/LABEL	BProtein/6/ID	REF/1	REF/1/DOI	REF/1/NOTES	REF/2	REF/2/DOI	REF/2/NOTES
 
 # this will contain the top level anatomical structure (e.g., "ovary")
 head = ""

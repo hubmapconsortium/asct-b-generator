@@ -64,5 +64,5 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 1. The user needs to know how many levels for the anatomical structures or at least over estimate the number.
 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
 3. The program doesn't insert a header line in the output file.
-3. Need better handling of possible header line. Currently we assume the header line, if present, begins with "name".
+3. Need better handling of possible header line in the input file. Currently we assume the header line, if present, begins with "name".
 3. Blank spaces trailing a name in the first column of the table cause problems. I should strip spaces from the end of each field value.

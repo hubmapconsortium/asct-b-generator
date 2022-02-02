@@ -11,13 +11,13 @@ This program has only been tested on a Mac OS using Python 3. Although it should
 To process the demo input file and generate a TSV file that can be opened by Excel
 
 ```
-process.py <name of top level entity> <number of anatomical structure levels> <input TSV file> <output TSV file>
+process.py "<name of top level entity>" <number of anatomical structure levels> <input TSV file> <output TSV file>
 ```
 
 
 
-```bash
-process.py organ 3 demo-input.txt demo-output.xls
+```
+process.py "organ" 3 demo-input.txt demo-output.xls
 ```
 
 ## Input file (TSV)
@@ -32,7 +32,7 @@ The **Type** value needs to be "AS" for anatomical structures and "CT" for cell 
 
 We don't currently allow anatomical structures to be assigned features (e.g., genes, proteins, references, etc) if they have children. Features such as genes and proteins are only applied to the lowest level of anatomical structures and to cell types.
 
-A header line is optional and will be ignored.
+The first line in the input file is assumed to contain a header and is ignored.
 
 The following example is incomplete and just included to exemplify the field values and usage:
 
@@ -59,10 +59,8 @@ doi:10.1093/oxfordjournals.humrep.a136365	PMID: 3558758		Reference
 McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The Adult Human Ovary: A Histochemical Study. Obstetrics & Gynecology, 18(1), 13-39. 		Reference								
 ```
 
-## Known problems
+## Known problems and limitations
 
-1. The user needs to know how many levels for the anatomical structures or at least over estimate the number.
-2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
-3. The program doesn't insert a header line in the output file.
-3. Need better handling of possible header line in the input file. Currently we assume the header line, if present, begins with "name".
-3. Blank spaces trailing a name in the first column of the table cause problems. I should strip spaces from the end of each field value.
+1. The user needs to know how many levels for the anatomical structures or at least an over estimate of the number of levels.
+2. The program doesn't insert a header line in the output file.
+3. Biomarkers and references can only be applied to the lowest level of anatomical structures or to cell types. We don't currently allow anatomical structures to be assigned biomarkers or references if the anatomical structure has lower level structures or has been assigned cell types.

@@ -7,10 +7,7 @@ DEBUG = False
 
 # issues
 # 1. The user needs to know how many levels for the anatomical structure or at least over estimate the number
-# 2. The top level anatomical structure needs to be a single word (e.g. "Tube" instead of "Fellopian tube").
-# 3. The program doesn't insert a header line
-# 4. Need better handling of possible header line. Currently we assume the header line, if present, begins with "name".
-# 5. blank spaces trailing a name can trip up the program.
+# 2. The program doesn't insert a header line
 
 # usage
 # ./process.py ovary 10 Ovaries-v2.txt Ovaries-v2-ASCTB.xls
@@ -170,15 +167,18 @@ if __name__ == "__main__":
     found_input_error = False
     
     contents = in_file.readlines()
+    headerLine = True
     for line in contents:
         # the first line might be a header line. That's intrisically resolved as the header "shouldn't" match to any children
         name, label, reference, s_type, children_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, refs_string = re.split(r'\t', line.rstrip('\n'))
 
-        # skip header line and assuming it begins with "name" if present.
-        if "name" in name.lower():
+        # first line is the header, so skip it
+        if headerLine:
+            headerLine = False
             continue
 
         # remove the quotes and extra spaces from the TSV file
+        name = name.rstrip()
         children_string = children_string.replace('"', '').replace(', ', ',')
         genes_string = genes_string.replace('"', '').replace(', ', ',')
         proteins_string = proteins_string.replace('"', '').replace(', ', ',')

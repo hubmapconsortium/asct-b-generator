@@ -30,7 +30,7 @@ The **Type** value needs to be "AS" for anatomical structures and "CT" for cell 
 
 **Children** is a comma separated list of child objects. These children need to be either anatomical structures (AS) or cell types (CT). The **Genes**, **Proteins**, **Proteoforms**, etc fields should be comma separated lists of the appropriate objects (e.g., **Genes** should be a comma separated list of relevant genes). In all cases the objects **Name** or **Ref DOI** should be used.
 
-We don't currently allow anatomical structures to be assigned features (e.g., genes, proteins, references, etc) if they have children. Features such as genes and proteins are only applied to the lowest level of anatomical structures and to cell types.
+Anatomical structures contains a child structure or a cell type, then it can not be assigned biomarkers (e.g., genes, proteins, etc). Biomarkers and references are only applied to the lowest level of anatomical structures and to cell types.
 
 The first line in the input file is assumed to contain a header and is ignored.
 
@@ -63,4 +63,3 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 
 1. The user needs to know how many levels for the anatomical structures or at least an over estimate of the number of levels.
 2. The program doesn't insert a header line in the output file.
-3. Biomarkers and references can only be applied to the lowest level of anatomical structures or to cell types. We don't currently allow anatomical structures to be assigned biomarkers or references if the anatomical structure has lower level structures or has been assigned cell types.

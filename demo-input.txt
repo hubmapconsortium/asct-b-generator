@@ -1,23 +1,23 @@
-NAME (REF DOI)	LABEL (REF DETAILS)	ID (REF NOTES)	TYPE	CHILDREN	GENES	PROTEINS	PROTEOFORMS	LIPIDS	METABOLITES	FTUs	REFERENCES (DOI)
-organ		UBERON:1234	AS	"sub struct 1, sub struct 2"							
-sub struct 1		UBERON:0001	AS	"sub struct 3, sub struct 4"							
-sub struct 2		UBERON:0002	AS	"sub struct 5, sub struct 6"							
-sub struct 3	as-3	UBERON:0003	AS	"cell1,cell2,cell3"							
-sub struct 4	as-4	UBERON:0004	AS	"cell1,cell2"							
-sub struct 5	as-5	UBERON:0005	AS	"cell1,cell2,cell3"							
-sub struct 6	as-6	UBERON:0006	AS	cell3							
-cell1	c1		CT		gene1	"protein1,protein2"		lipid1	metabolite1		ref1
-cell2	c2		CT		"gene1,gene2,gene3"		"proteo1, proteo2"	lipid2			ref2
-cell3	c3		CT		"gene1,gene3"	protein2	proteo2		metabolite1		"ref1,ref2"
-gene1			Gene								
-gene2			Gene								
-gene3			Gene								
-protein1			Protein								
-protein2			Protein								
-proteo1			Proteoform								
-proteo2			Proteoform								
-lipid1			Lipid								
-lipid2			Lipid								
-metabolite1			Metabolite								
-ref1			Reference								
-ref2			Reference								
+NAME (REF DOI)	LABEL (REF DETAILS)	ID (REF NOTES)	TYPE	CHILDREN	CELLS	GENES	PROTEINS	PROTEOFORMS	LIPIDS	METABOLITES	FTUs	REFERENCES (DOI)
+organ		UBERON:1234	AS	"sub struct 1, sub struct 2"								
+sub struct 1		UBERON:0001	AS	"sub struct 3, sub struct 4"								
+sub struct 2		UBERON:0002	AS	"sub struct 5, sub struct 6"								
+sub struct 3	as-3	UBERON:0003	AS		"cell1,cell2,cell3"							
+sub struct 4	as-4	UBERON:0004	AS		"cell1,cell2"							
+sub struct 5	as-5	UBERON:0005	AS		"cell1,cell2,cell3"							
+sub struct 6	as-6	UBERON:0006	AS		cell3							
+cell1	c1		CT			gene1	"protein1,protein2"		lipid1	metabolite1		ref1
+cell2	c2		CT			"gene1,gene2,gene3"		"proteo1, proteo2"	lipid2			ref2
+cell3	c3		CT			"gene1,gene3"	protein2	proteo2		metabolite1		"ref1,ref2"
+gene1			Gene									
+gene2			Gene									
+gene3			Gene									
+protein1			Protein									
+protein2			Protein									
+proteo1			Proteoform									
+proteo2			Proteoform									
+lipid1			Lipid									
+lipid2			Lipid									
+metabolite1			Metabolite									
+ref1			Reference									
+ref2			Reference									

@@ -282,7 +282,7 @@ def print_ASCTB_table():
                         # TEST: make sure the cell exists
                         error = "ERROR: cell hasn't been defined. Please add a row to the input that defines this cell."
                         error += "\n\tCell: " + cell
-                        error += "\n\tAnatomical Structure: " + str(node)
+                        error += "\n\tAnatomical Structure: " + node.name
                         exit_with_error(error)
 
                     cell_feature = features[cell]
@@ -326,7 +326,7 @@ def process_input(input_string, max_depth):
     """
 
     # remove the quotes and extra spaces from the input string
-    input_string = input_string.replace('"', '').replace(', ', ',')
+    input_string = input_string.replace('"', '').replace(', ', ',').strip()
 
     # convert the string to an array and also track the longest array, so
     # we know how many levels for the feature type.
@@ -440,15 +440,15 @@ if __name__ == "__main__":
             continue
 
         # clean up white spaces
-        name = name.rstrip()
+        name = name.strip()
 
         # convert strings into lists and get the number of levels per
         # feature type
-        children_string = children_string.replace('"', '').replace(', ', ',')
+        children_string = children_string.replace('"', '').replace(', ', ',').strip()
         children = []
         if len(children_string) > 0:
             children = children_string.split(',')
-        cells_string = cells_string.replace('"', '').replace(', ', ',')
+        cells_string = cells_string.replace('"', '').replace(', ', ',').strip()
         cells = []
         if len(cells_string) > 0:
             cells = cells_string.split(',')
@@ -529,9 +529,9 @@ if __name__ == "__main__":
     for node in nodes:
         if nodes[node].is_root:
             if tree_root:
-                error = "ERROR: multiple anatomical structures lacking parents."
+                error = "ERROR: anatomical structure(s) lacking parents."
                 error += "\n\tStructure: " + tree_root.name
-                error += "\n\tStructure: " + key
+                error += "\n\tStructure: " + node
                 exit_with_error(error)
             tree_root = nodes[node]
 

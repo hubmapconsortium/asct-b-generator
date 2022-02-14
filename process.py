@@ -2,7 +2,9 @@
 
 import sys
 import re
-from anytree import Node, RenderTree, AsciiStyle, LevelOrderGroupIter, Walker
+import argparse
+from anytree import Node, SymlinkNode, RenderTree, AsciiStyle, LevelOrderGroupIter, Walker
+from anytree.exporter import DotExporter
 
 '''
 https://pypi.org/project/anytree/
@@ -31,6 +33,9 @@ Error testing:
 
 DEBUG = False
 
+# print the tree to the command line
+print_tree = False
+
 # all anatomical structures
 nodes = {}
 
@@ -56,13 +61,17 @@ max_references = 0
 # the file handles
 in_file = ""
 out_file = ""
+dot_file = None
 
 
 ################################################
 # Classes
 
-# used to store cells as well as biomarkers and references
 class Feature:
+    """
+    used to store cells as well as biomarkers and references
+    """
+    
     def __init__(self, name, feature_type, label="", id="", **kwargs):
         self.name = name
         self.feature_type = feature_type
@@ -88,17 +97,22 @@ class Feature:
 ################################################
 # Functions
 
-# test if a node contains any cells or features.
 def no_features(node):
+    """
+    Test if a node contains any cells or features.
+    """
+
     # test for all biomarkers and references
     if node.cells or node.genes or node.proteins or node.proteoforms or node.lipids or node.metabolites or node.ftu or node.references:
         return False
     return True
 
 
-# generates a triplet of column headers as exemplified below:
-# AS/1	AS/1/LABEL	AS/1/ID
 def get_header_block(content, depth):
+    """
+    generates a triplet of column headers as exemplified below:
+    AS/1	AS/1/LABEL	AS/1/ID
+    """
     return content + "/" + str(depth) + "\t" + content + "/" + str(depth) + "/LABEL\t" + content + "/" + str(depth) + "/ID"
 
 
@@ -140,13 +154,18 @@ def print_ASCTB_header(max_AS_depth):
     out_file.write(header)
 
 
-# Generates a triplet for a data element
 def get_data_block(element):
+    """
+    Generates a triplet for a data element
+    """
     return element.name + "\t" + element.label + "\t" + element.id
 
 
-# Outputs the biomarker data and/or tabs as appropriate
 def add_biomarkers(elements, max_depth):
+    """
+    Outputs the biomarker data and/or tabs as appropriate
+    """
+    
     output = ""
     count = 0
     if elements:
@@ -158,9 +177,11 @@ def add_biomarkers(elements, max_depth):
     return output
 
 
-# The argument (element) can be either an anatomical structure ("node")
-# or a cell as they contain the same features.
 def add_features(record, element):
+    """
+    The argument (element) can be either an anatomical structure ("node")
+    or a cell as they contain the same features.
+    """
     global features, out_file
 
     # need to track how many entities we output per feature type, to
@@ -180,14 +201,20 @@ def add_features(record, element):
     out_file.write(record)
 
 
-# Print the ASCT+B table, stepping through the tree, one level at a
-# time and applying each of the relevant cells and features to the
-# node.
 def print_ASCTB_table():
+    """
+    Print the ASCT+B table, stepping through the tree, one level at a
+    time and applying each of the relevant cells and features to the
+    node.
+    """
+
     global nodes, tree_root, features
 
     # get a list of lists where the sub-lists are the nodes per level
-    # of the tree
+    # of the tree. The list returned will appropriately include
+    # Symlink'ed Nodes but it won't actually reference the Symlink but
+    # rather the original Node. So we need to manually process the
+    # Symlinks, when we've seen a Node more than once.
     levels = [[node.name for node in children] for children in LevelOrderGroupIter(tree_root)]
 
     # total number of anatomical structure levels
@@ -203,9 +230,17 @@ def print_ASCTB_table():
         AS_depth += 1
         for node_name in level:
             node = nodes[node_name]
+
+            # if we've already processed this node once, then we need
+            # to use one of the Symlinks. LevelOrderGroupIter() only
+            # returns the original Node in place of each of the
+            # Symlinks.
+            if node.processed > 0:
+                node = node.symlinks[node.processed-1]
+            node.processed += 1
             
-            # check for features to output and if no features, then
-            # skip to the next node.
+            # if inner node and doesn't have any features, then skip
+            # to the next node.
             if no_features(node) and not node.is_leaf:
                 continue
 
@@ -226,7 +261,10 @@ def print_ASCTB_table():
 
             # pad record, to account for structures that aren't as
             # deep as the maximum possible depth (max_AS_depth).
-            anatomical_structure += "\t\t\t" * (max_AS_depth-AS_depth)
+            anatomical_structure += "\t\t\t" * (max_AS_depth - AS_depth)
+
+            # track if we've printed the node in some form
+            node_output = False
 
             # add cell-independent features here
             if node.genes or node.proteins or node.proteoforms or node.lipids or node.metabolites or node.ftu or node.references:
@@ -234,95 +272,193 @@ def print_ASCTB_table():
                 record = anatomical_structure + "\t\t\t"
                 # add features
                 add_features(record, node)
+                node_output = True
 
             # add cells and cell-dependent features
             cells = node.cells
             if cells:
                 for cell in cells:
+                    if cell not in features:
+                        # TEST: make sure the cell exists
+                        error = "ERROR: cell hasn't been defined. Please add a row to the input that defines this cell."
+                        error += "\n\tCell: " + cell
+                        error += "\n\tAnatomical Structure: " + str(node)
+                        exit_with_error(error)
+
                     cell_feature = features[cell]
                     record = anatomical_structure + get_data_block(cell_feature) + "\t"
 
                     # add cell-specific features
                     add_features(record, cell_feature)
+                    node_output = True
+
+            # if node is leaf and doesn't have any assigned cells or
+            # features then we output it here.
+            if not node_output:
+                record = anatomical_structure + "\t\t\t" * (1 + max_genes + max_proteins + max_proteoforms + max_lipids + max_metabolites + max_ftu + max_references) + "\n"
+                out_file.write(record)
 
                     
-# Prepare to quit
 def close_files():
+    """
+    Prepare to quit
+    """
     global in_file, out_file
 
     in_file.close()
     out_file.close()
+    if dot_file:
+        dot_file.close()
 
 
-# Quit with an error
 def exit_with_error(error):
+    """
+    Quit with an error
+    """
     close_files()
     sys.exit(error)
 
 
-# Convert the string to an array and also track the longest array, so
-# we know how many levels for the feature type.
-def split_string(array_string, max_depth):
+def process_input(input_string, max_depth):
+    """
+    Clean up the input, convert it to an array and compute the longest
+    array, per feature type.
+    """
+
+    # remove the quotes and extra spaces from the input string
+    input_string = input_string.replace('"', '').replace(', ', ',')
+
+    # convert the string to an array and also track the longest array, so
+    # we know how many levels for the feature type.
     tmp = []
-    if array_string:
-        tmp = array_string.split(',')
+    if input_string:
+        tmp = input_string.split(',')
         if max_depth < len(tmp):
             max_depth = len(tmp)
+
+    # return the array and the depth
     return tmp, max_depth
 
 
+def build_tree(nodes_to_process, dup_nodes):
+    global nodes
+    
+    for node in nodes_to_process:
+        children = nodes[node].kids
+        if children:
+            for child in children:
+                if child not in nodes:
+                    # TEST: make sure the child exists
+                    error = "ERROR: anatomical structure hasn't been defined. Please add a row to the input that defines this structure."
+                    error += "\n\tStructure: " + child
+                    error += "\n\tParent: " + node                    
+                    exit_with_error(error)
+                    
+                child_node = nodes[child]
+                if child_node.parent:
+                    # child already has a parent, so need to create a
+                    # duplicate (Symlink) child, to allow for multiple
+                    # parents. 
+                    new_child = SymlinkNode(child_node, parent=nodes[node])
+                    dup_nodes[new_child] = new_child
+                    
+                    # We need to track duplicates because
+                    # LevelOrderGroupIter() doesn't differentiate
+                    # between a Node and a Symlink. Hence when we
+                    # export the tree Symlinks get lost.
+                    if child_node.symlinks:
+                        child_node.symlinks.append(new_child)
+                    else:
+                        child_node.symlinks = [new_child]
+                else:
+                    child_node.parent = nodes[node]
+                    
+                '''
+                if child_node.parent:
+                    # TEST: make sure no nodes have multiple parents
+                    error = "ERROR: anatomical structure has two parents."
+                    error += "\n\tStructure: " + child
+                    error += "\n\tParent: " + child_node.parent.name
+                    error += "\n\tParent: " + key
+                    exit_with_error(error)
+                '''
+
+    return dup_nodes
+
+
+def process_arguments():
+    global in_file, out_file, dot_file, print_tree
+    """
+    Handle command line arguments.
+    """
+    
+    parser = argparse.ArgumentParser(description="Generate ASCT+B table.")
+    parser.add_argument("-d", "--dot", help="Output tree as a DOT file for plotting with Graphviz.", action="store_true")
+    parser.add_argument("-v", "--verbose", help="Print the tree to the terminal.", action="store_true")
+    parser.add_argument("input", type=str, help="Input file")
+    parser.add_argument("output", type=str, help="Output file (TSV)")
+
+    args = parser.parse_args()
+    
+    # open input file.
+    in_file = open(args.input, "r")
+
+    # this will overwrite any existing file
+    out_file = open(args.output, "w")
+
+    if args.dot:
+        dot_file = open(args.output + ".dot", "w")
+
+    if args.verbose:
+        print_tree = True
+    
 ################################################
 # Main
 
 # Cxecute script
 if __name__ == "__main__":
-    # open input file. argv[0] is the program name
 
-    in_filename = sys.argv[1]
-    in_file = open(in_filename, "r")
-
-    # this will overwrite any existing file
-    out_filename = sys.argv[2]
-    out_file = open(out_filename, "w")
+    process_arguments()
 
     contents = in_file.readlines()
     headerLine = True
     for line in contents:
-        # XXX: need to catch if this throws an exception due to incorrect number of values
-        name, label, id, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = re.split(r'\t', line.rstrip('\n'))
+        # parse the tab-delimited line
+        line_as_list = re.split(r'\t', line.rstrip('\n'))
+        # make sure the line contains the appropriate number of fields
+        if len(line_as_list) != 13:
+            error = "ERROR: incorrect number of fields in line. The tab-delimited line should contain 13 fields: "
+            error += "\n\tname, label, ID, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references"
+            error += "\n\tNumber of fields found in line: " + str(len(line_as_list))
+            error += "\n\tLine: " + line
+            exit_with_error(error)
+        name, label, id, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = line_as_list
 
         # the first line is a header line, which we skip here
         if headerLine:
             headerLine = False
             continue
 
-        # remove the quotes and extra spaces from the TSV file
+        # clean up white spaces
         name = name.rstrip()
-        children_string = children_string.replace('"', '').replace(', ', ',')
-        cells_string = cells_string.replace('"', '').replace(', ', ',')
-        genes_string = genes_string.replace('"', '').replace(', ', ',')
-        proteins_string = proteins_string.replace('"', '').replace(', ', ',')
-        proteoforms_string = proteoforms_string.replace('"', '').replace(', ', ',')
-        lipids_string = lipids_string.replace('"', '').replace(', ', ',')
-        metabolites_string = metabolites_string.replace('"', '').replace(', ', ',')
-        ftu_string = ftu_string.replace('"', '').replace(', ', ',')
-        references_string = references_string.replace('"', '').replace(', ', ',')
 
-        # convert strings into lists and, if relevant, get the number
-        # of levels per feature type
+        # convert strings into lists and get the number of levels per
+        # feature type
+        children_string = children_string.replace('"', '').replace(', ', ',')
         children = []
         if len(children_string) > 0:
             children = children_string.split(',')
+        cells_string = cells_string.replace('"', '').replace(', ', ',')
         cells = []
         if len(cells_string) > 0:
             cells = cells_string.split(',')
-        genes, max_genes = split_string(genes_string, max_genes)
-        proteins, max_proteins = split_string(proteins_string, max_proteins)
-        proteoforms, max_proteoforms = split_string(proteoforms_string, max_proteoforms)
-        lipids, max_lipids = split_string(lipids_string, max_lipids)
-        metabolites, max_metabolites = split_string(metabolites_string, max_metabolites)
-        ftu, max_ftu = split_string(ftu_string, max_ftu)
-        references, max_references = split_string(references_string, max_references)
+        genes, max_genes = process_input(genes_string, max_genes)
+        proteins, max_proteins = process_input(proteins_string, max_proteins)
+        proteoforms, max_proteoforms = process_input(proteoforms_string, max_proteoforms)
+        lipids, max_lipids = process_input(lipids_string, max_lipids)
+        metabolites, max_metabolites = process_input(metabolites_string, max_metabolites)
+        ftu, max_ftu = process_input(ftu_string, max_ftu)
+        references, max_references = process_input(references_string, max_references)
 
         '''
         # TEST: make sure biomarkers and references are only applied to leaves or cell types
@@ -356,7 +492,7 @@ if __name__ == "__main__":
         if feature_type == "AS":
             # "children" is a reserved word in Node() and here we want
             # to store the string of children, so we use "kids"
-            node = Node(name, label=label, id=id, kids=children, cells=cells, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references)
+            node = Node(name, label=label, id=id, kids=children, cells=cells, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references, symlinks=None, processed=0)
             if name in nodes:
                 # TEST: make sure all anatomical structures are uniquely named
                 error = "ERROR: two anatomical structures with the same name."
@@ -377,36 +513,27 @@ if __name__ == "__main__":
             else:
                 features[name] = feature
 
-    # everything loaded, so now build the tree
-    for key in nodes.keys():
-        node = nodes[key]
-        children = node.kids
-        if children:
-            for child in children:
-                if child not in nodes:
-                    # TEST: make sure the child exists
-                    error = "ERROR: anatomical structure hasn't been defined."
-                    error += "\n\tStructure: " + child
-                    exit_with_error(error)
-                child_node = nodes[child]
-                if child_node.parent:
-                    # TEST: make sure no nodes have multiple parents
-                    error = "ERROR: anatomical structure has two parents."
-                    error += "\n\tStructure: " + child
-                    error += "\n\tParent: " + child_node.parent.name
-                    error += "\n\tParent: " + key
-                    exit_with_error(error)
-                child_node.parent = node
+    # everything loaded, so now build the tree, allowing for duplicate nodes
+    dup_nodes = build_tree(nodes, {})
+    # add duplicate nodes to our global node dictionary
+    nodes.update(dup_nodes)
+
+    # keep running build_tree() until all duplicate nodes have been
+    # processed as each run of build_tree() might generate more
+    # duplicate nodes needing to be processed.
+    while dup_nodes:
+        dup_nodes = build_tree(dup_nodes, {})
+        nodes.update(dup_nodes)
 
     # TEST: make sure only one root node
-    for key in nodes.keys():
-        if nodes[key].is_root:
+    for node in nodes:
+        if nodes[node].is_root:
             if tree_root:
                 error = "ERROR: multiple anatomical structures lacking parents."
                 error += "\n\tStructure: " + tree_root.name
                 error += "\n\tStructure: " + key
                 exit_with_error(error)
-            tree_root = nodes[key]
+            tree_root = nodes[node]
 
     # print the ASCT+B table
     print_ASCTB_table()
@@ -415,17 +542,25 @@ if __name__ == "__main__":
         # Height returns the number of edges, but we want the number of node levels.
         print("Anatomical structure levels: ", tree_root.height+1)
         # print each of the levels.
-        # print([[node.name for node in children] for children in LevelOrderGroupIter(tree_root)])
+        print([[node.name for node in children] for children in LevelOrderGroupIter(tree_root)])
 
-        # print tree (simplified and with all details)
-        print("\n", RenderTree(tree_root, style=AsciiStyle()).by_attr())
+        # print tree with all details
+        print("\n", RenderTree(tree_root))
 
         print("\nNodes:")
         for node in nodes:
-            print(nodes[node])
+            if nodes[node].parent:
+                print(node, nodes[node].parent.name)
 
         print("\nFeatures:")
         for feature in features:
             print(features[feature])
+
+    if print_tree:
+        print("\n", RenderTree(tree_root, style=AsciiStyle()).by_attr())
+
+    if dot_file:
+        for line in DotExporter(tree_root):
+            dot_file.write(line)
 
     close_files()

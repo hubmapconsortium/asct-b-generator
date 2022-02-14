@@ -1,0 +1,8 @@
+
+ organ
+|-- sub struct 1
+|   |-- sub struct 3
+|   +-- sub struct 4
++-- sub struct 2
+    |-- sub struct 5
+    +-- sub struct 6

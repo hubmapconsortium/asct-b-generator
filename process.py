@@ -36,6 +36,17 @@ DEBUG = False
 # print the tree to the command line
 print_tree = False
 
+# requiring each anatomical structure to have one and only one
+# parent. When true, if the same sub-structure exists in multiple
+# parent-structures, then each child structure would need to be
+# uniquely named.
+only_on_parent = False
+
+# if true, we will automatically generate missing cells, biomarkers
+# and references. The generated ones will contain no secondary
+# details. Anatomical structures must be defined.
+missing_feature_ok = False
+
 # all anatomical structures
 nodes = {}
 
@@ -154,22 +165,32 @@ def print_ASCTB_header(max_AS_depth):
     out_file.write(header)
 
 
-def get_data_block(element):
+def get_data_block(feature):
     """
-    Generates a triplet for a data element
+    Generates a triplet for a feature
     """
-    return element.name + "\t" + element.label + "\t" + element.id
+    return feature.name + "\t" + feature.label + "\t" + feature.id
 
 
 def add_biomarkers(elements, max_depth):
     """
     Outputs the biomarker data and/or tabs as appropriate
     """
+    global features, missing_feature_ok
     
     output = ""
     count = 0
     if elements:
         for element in elements:
+            if element not in features:
+                # TEST: feature isn't defined
+                if missing_feature_ok:
+                    # add a place holder cell type
+                    features[element] = Feature(element, "", label="", id="")
+                else:
+                    error = "ERROR: feature hasn't been defined. Please add a row to the input that defines this feature."
+                    error += "\n\tFeature: " + element
+                    exit_with_error(error)
             output += get_data_block(features[element]) + "\t"
             count += 1
     if count < max_depth:
@@ -207,8 +228,7 @@ def print_ASCTB_table():
     time and applying each of the relevant cells and features to the
     node.
     """
-
-    global nodes, tree_root, features
+    global nodes, tree_root, features, missing_feature_ok
 
     # get a list of lists where the sub-lists are the nodes per level
     # of the tree. The list returned will appropriately include
@@ -279,11 +299,15 @@ def print_ASCTB_table():
             if cells:
                 for cell in cells:
                     if cell not in features:
-                        # TEST: make sure the cell exists
-                        error = "ERROR: cell hasn't been defined. Please add a row to the input that defines this cell."
-                        error += "\n\tCell: " + cell
-                        error += "\n\tAnatomical Structure: " + node.name
-                        exit_with_error(error)
+                        # TEST: cell isn't defined
+                        if missing_feature_ok:
+                            # add a place holder cell type
+                            features[cell] = Feature(cell, "CT", label="", id="")
+                        else:
+                            error = "ERROR: cell hasn't been defined. Please add a row to the input that defines this cell."
+                            error += "\n\tCell: " + cell
+                            error += "\n\tAnatomical Structure: " + node.name
+                            exit_with_error(error)
 
                     cell_feature = features[cell]
                     record = anatomical_structure + get_data_block(cell_feature) + "\t"
@@ -341,14 +365,13 @@ def process_input(input_string, max_depth):
 
 
 def build_tree(nodes_to_process, dup_nodes):
-    global nodes
+    global nodes, only_one_parent
     
     for node in nodes_to_process:
         children = nodes[node].kids
         if children:
             for child in children:
                 if child not in nodes:
-                    # TEST: make sure the child exists
                     error = "ERROR: anatomical structure hasn't been defined. Please add a row to the input that defines this structure."
                     error += "\n\tStructure: " + child
                     error += "\n\tParent: " + node                    
@@ -356,6 +379,14 @@ def build_tree(nodes_to_process, dup_nodes):
                     
                 child_node = nodes[child]
                 if child_node.parent:
+                    # TEST: a node has more than one parent
+                    if only_one_parent:
+                        error = "ERROR: anatomical structure has two parents."
+                        error += "\n\tStructure: " + child
+                        error += "\n\tParent: " + child_node.parent.name
+                        error += "\n\tParent: " + node
+                        exit_with_error(error)
+
                     # child already has a parent, so need to create a
                     # duplicate (Symlink) child, to allow for multiple
                     # parents. 
@@ -373,26 +404,18 @@ def build_tree(nodes_to_process, dup_nodes):
                 else:
                     child_node.parent = nodes[node]
                     
-                '''
-                if child_node.parent:
-                    # TEST: make sure no nodes have multiple parents
-                    error = "ERROR: anatomical structure has two parents."
-                    error += "\n\tStructure: " + child
-                    error += "\n\tParent: " + child_node.parent.name
-                    error += "\n\tParent: " + key
-                    exit_with_error(error)
-                '''
-
     return dup_nodes
 
 
 def process_arguments():
-    global in_file, out_file, dot_file, print_tree
+    global in_file, out_file, dot_file, print_tree, only_one_parent, missing_feature_ok
     """
     Handle command line arguments.
     """
     
     parser = argparse.ArgumentParser(description="Generate ASCT+B table.")
+    parser.add_argument("-m", "--missing", help="Ignore missing cell types, biomarkers and references. For example, if a cell type is marked as containing a biomarker that wasn't defined, this flag would prevent the program from exiting with an error and instead the ASCT+B table would be generated. When the flag isn't used, all features must be defined.", action="store_true")
+    parser.add_argument("-u", "--unique", help="Make sure all anatomical structures are unique, having one and only one parent.", action="store_true")
     parser.add_argument("-d", "--dot", help="Output tree as a DOT file for plotting with Graphviz.", action="store_true")
     parser.add_argument("-v", "--verbose", help="Print the tree to the terminal.", action="store_true")
     parser.add_argument("input", type=str, help="Input file")
@@ -409,9 +432,11 @@ def process_arguments():
     if args.dot:
         dot_file = open(args.output + ".dot", "w")
 
-    if args.verbose:
-        print_tree = True
-    
+    print_tree = args.verbose
+    only_one_parent = args.unique
+    missing_feature_ok = args.missing
+
+
 ################################################
 # Main
 
@@ -441,6 +466,12 @@ if __name__ == "__main__":
 
         # clean up white spaces
         name = name.strip()
+
+        # TEST: make sure names don't contain commas
+        if name.find(',') > -1:
+            error = "ERROR: names can not include commas (',')."
+            error += "\n\tName: " + name
+            exit_with_error(error)
 
         # convert strings into lists and get the number of levels per
         # feature type
@@ -493,9 +524,10 @@ if __name__ == "__main__":
             # "children" is a reserved word in Node() and here we want
             # to store the string of children, so we use "kids"
             node = Node(name, label=label, id=id, kids=children, cells=cells, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references, symlinks=None, processed=0)
+
             if name in nodes:
-                # TEST: make sure all anatomical structures are uniquely named
-                error = "ERROR: two anatomical structures with the same name."
+                # TEST: anatomical structures' name already used
+                error = "ERROR: two anatomical structures can not have the same name. However, by default, a single anatomical structure can be the child of multiple parents."
                 error += "\n\t" + str(node)
                 error += "\n\t" + str(nodes[name])
                 exit_with_error(error)
@@ -505,8 +537,8 @@ if __name__ == "__main__":
             # Feature class is used to store both cells and biomarkers.
             feature = Feature(name, feature_type, label=label, id=id, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references)
             if name in features:
-                # TEST: make sure all features are uniquely named
-                error = "ERROR: two features with the same name."
+                # TEST: feature name already used
+                error = "ERROR: all features must have a unique name."
                 error += "\n\t" + str(feature)
                 error += "\n\t" + str(features[name])
                 exit_with_error(error)
@@ -525,10 +557,11 @@ if __name__ == "__main__":
         dup_nodes = build_tree(dup_nodes, {})
         nodes.update(dup_nodes)
 
-    # TEST: make sure only one root node
+    # set tree_root to the root of the tree
     for node in nodes:
         if nodes[node].is_root:
             if tree_root:
+                # TEST: more than one node without a parent (ie., "root").
                 error = "ERROR: anatomical structure(s) lacking parents."
                 error += "\n\tStructure: " + tree_root.name
                 error += "\n\tStructure: " + node

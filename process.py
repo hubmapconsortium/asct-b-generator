@@ -1,32 +1,31 @@
 #!/usr/bin/python3
 
+'''
+Requires anytree:
+https://pypi.org/project/anytree/
+
+Assumptions:
+
+  1. Inner nodes can contain biomarkers or references, not just leaves
+  and cell types.
+
+  2. All anatomical structures must be uniquely named, for example,
+     there can not be two structures called "ovary" but there can be
+     "left ovary" and "right ovary".
+
+  3. Cell type is only one level; that is, cell types can not have
+  child cell types.
+
+  4. Commas can not be used in names for anatomical structures, cells,
+  or features.
+'''
+
 import sys
 import re
 import argparse
 from anytree import Node, SymlinkNode, RenderTree, AsciiStyle, LevelOrderGroupIter, Walker
 from anytree.exporter import DotExporter
 
-'''
-https://pypi.org/project/anytree/
-
-Diffs from version 1:
-  1. don't need to know the name of organ
-  2. don't need to know the number of AS levels
-  3. added "cells" column to the input file
-  4. allow biomarkers and references to be allied to any anatomical structure
-
-Assumptions:
-  1. Inner nodes can contain biomarkers or references, not just leaves and cells.
-  2. All anatomical structures must be uniquely named, for example,
-     there can not be two structures called "ovary" but there can be
-     "left ovary" and "right ovary".
-  3. Cell type is only one level.
-
-Error testing:
-  1. make sure only one root structure
-  2. make sure every structure has only one parent
-  3. make sure no two structures or features have the same name
-'''
 
 ################################################
 # Globals
@@ -110,10 +109,10 @@ class Feature:
 
 def no_features(node):
     """
-    Test if a node contains any cells or features.
+    Check if a node contains any cells or features.
     """
 
-    # test for all biomarkers and references
+    # check for all biomarkers and references
     if node.cells or node.genes or node.proteins or node.proteoforms or node.lipids or node.metabolites or node.ftu or node.references:
         return False
     return True
@@ -415,7 +414,7 @@ def process_arguments():
     
     parser = argparse.ArgumentParser(description="Generate ASCT+B table.")
     parser.add_argument("-m", "--missing", help="Ignore missing cell types, biomarkers and references. For example, if a cell type is marked as containing a biomarker that wasn't defined, this flag would prevent the program from exiting with an error and instead the ASCT+B table would be generated. When the flag isn't used, all features must be defined.", action="store_true")
-    parser.add_argument("-u", "--unique", help="Make sure all anatomical structures are unique, having one and only one parent.", action="store_true")
+    parser.add_argument("-u", "--unique", help="Make sure all anatomical structures have one and only one parent.", action="store_true")
     parser.add_argument("-d", "--dot", help="Output tree as a DOT file for plotting with Graphviz.", action="store_true")
     parser.add_argument("-v", "--verbose", help="Print the tree to the terminal.", action="store_true")
     parser.add_argument("input", type=str, help="Input file")

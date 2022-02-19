@@ -1,6 +1,16 @@
 #!/usr/bin/python3
 
 '''
+- include "notes" and "ABBR" (abbreviation) fields for each feature
+- need better demo and more clear instructions. Use color coding in demo and documentation.
+- use a real world demo, perhaps defining a family tree.
+- label = Uberon RDFS label
+- "input table" is the input file for the Generator
+- note in docs that revisions need to happen to the input table, not the ASCT+B table
+- expect 10 row header and duplicate into output
+'''
+
+'''
 Requires anytree:
 https://pypi.org/project/anytree/
 
@@ -31,6 +41,9 @@ from anytree.exporter import DotExporter
 # Globals
 
 DEBUG = False
+
+# number of columns in the input file
+INPUT_COLUMNS = 15
 
 # print the tree to the command line
 print_tree = False
@@ -82,11 +95,13 @@ class Feature:
     used to store cells as well as biomarkers and references
     """
     
-    def __init__(self, name, feature_type, label="", id="", **kwargs):
+    def __init__(self, name, feature_type, label="", id="", note="", abbr="", **kwargs):
         self.name = name
         self.feature_type = feature_type
         self.label = label
         self.id = id
+        self.note = note
+        self.abbr = abbr
         self.genes = kwargs.get('genes', None)
         self.proteins = kwargs.get('proteins', None)
         self.proteoforms = kwargs.get('proteoforms', None)
@@ -120,10 +135,15 @@ def no_features(node):
 
 def get_header_block(content, depth):
     """
-    generates a triplet of column headers as exemplified below:
-    AS/1	AS/1/LABEL	AS/1/ID
+    generates the five column headers as exemplified below:
+    AS/1	AS/1/LABEL	AS/1/ID	AS/1/NOTE	AS/1/ABBR
     """
-    return content + "/" + str(depth) + "\t" + content + "/" + str(depth) + "/LABEL\t" + content + "/" + str(depth) + "/ID"
+    output = content + "/" + str(depth) + "\t"
+    output += content + "/" + str(depth) + "/LABEL\t"
+    output += content + "/" + str(depth) + "/ID\t"
+    output += content + "/" + str(depth) + "/NOTE\t"
+    output += content + "/" + str(depth) + "/ABBR"
+    return output
 
 
 def get_biomarker_header(biomarker, max_depth):
@@ -168,7 +188,7 @@ def get_data_block(feature):
     """
     Generates a triplet for a feature
     """
-    return feature.name + "\t" + feature.label + "\t" + feature.id
+    return feature.name + "\t" + feature.label + "\t" + feature.id + "\t" + feature.note + "\t" + feature.abbr
 
 
 def add_biomarkers(elements, max_depth):
@@ -185,7 +205,7 @@ def add_biomarkers(elements, max_depth):
                 # TEST: feature isn't defined
                 if missing_feature_ok:
                     # add a place holder cell type
-                    features[element] = Feature(element, "", label="", id="")
+                    features[element] = Feature(element, "", label="", id="", note="", abbr="")
                 else:
                     error = "ERROR: feature hasn't been defined. Please add a row to the input that defines this feature."
                     error += "\n\tFeature: " + element
@@ -193,7 +213,7 @@ def add_biomarkers(elements, max_depth):
             output += get_data_block(features[element]) + "\t"
             count += 1
     if count < max_depth:
-        output += "\t\t\t" * (max_depth-count)
+        output += "\t\t\t\t\t" * (max_depth-count)
     return output
 
 
@@ -280,7 +300,7 @@ def print_ASCTB_table():
 
             # pad record, to account for structures that aren't as
             # deep as the maximum possible depth (max_AS_depth).
-            anatomical_structure += "\t\t\t" * (max_AS_depth - AS_depth)
+            anatomical_structure += "\t\t\t\t\t" * (max_AS_depth - AS_depth)
 
             # track if we've printed the node in some form
             node_output = False
@@ -288,7 +308,7 @@ def print_ASCTB_table():
             # add cell-independent features here
             if node.genes or node.proteins or node.proteoforms or node.lipids or node.metabolites or node.ftu or node.references:
                 # skip the cell block
-                record = anatomical_structure + "\t\t\t"
+                record = anatomical_structure + "\t\t\t\t\t"
                 # add features
                 add_features(record, node)
                 node_output = True
@@ -301,7 +321,7 @@ def print_ASCTB_table():
                         # TEST: cell isn't defined
                         if missing_feature_ok:
                             # add a place holder cell type
-                            features[cell] = Feature(cell, "CT", label="", id="")
+                            features[cell] = Feature(cell, "CT", label="", id="", note="", abbr="")
                         else:
                             error = "ERROR: cell hasn't been defined. Please add a row to the input that defines this cell."
                             error += "\n\tCell: " + cell
@@ -318,7 +338,7 @@ def print_ASCTB_table():
             # if node is leaf and doesn't have any assigned cells or
             # features then we output it here.
             if not node_output:
-                record = anatomical_structure + "\t\t\t" * (1 + max_genes + max_proteins + max_proteoforms + max_lipids + max_metabolites + max_ftu + max_references) + "\n"
+                record = anatomical_structure + "\t\t\t\t\t" * (1 + max_genes + max_proteins + max_proteoforms + max_lipids + max_metabolites + max_ftu + max_references) + "\n"
                 out_file.write(record)
 
                     
@@ -450,13 +470,13 @@ if __name__ == "__main__":
         # parse the tab-delimited line
         line_as_list = re.split(r'\t', line.rstrip('\n'))
         # make sure the line contains the appropriate number of fields
-        if len(line_as_list) != 13:
-            error = "ERROR: incorrect number of fields in line. The tab-delimited line should contain 13 fields: "
-            error += "\n\tname, label, ID, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references"
+        if len(line_as_list) != INPUT_COLUMNS:
+            error = "ERROR: incorrect number of fields in line. The tab-delimited line should contain " + INPUT_COLUMNS + "  fields: "
+            error += "\n\tname, label, ID, node, abbreviation, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references"
             error += "\n\tNumber of fields found in line: " + str(len(line_as_list))
             error += "\n\tLine: " + line
             exit_with_error(error)
-        name, label, id, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = line_as_list
+        name, label, id, note, abbr, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = line_as_list
 
         # the first line is a header line, which we skip here
         if headerLine:
@@ -507,6 +527,8 @@ if __name__ == "__main__":
             error += "\n\tEntity: " + name
             error += "\n\tLabel: " + label
             error += "\n\tID: " + id
+            error += "\n\tnote: " + note
+            error += "\n\tABBR: " + abbr
             error += "\n\tChildren: " + str(children)
             error += "\n\tCells: " + str(cells)
             error += "\n\tGenes: " + str(genes)
@@ -522,7 +544,7 @@ if __name__ == "__main__":
         if feature_type == "AS":
             # "children" is a reserved word in Node() and here we want
             # to store the string of children, so we use "kids"
-            node = Node(name, label=label, id=id, kids=children, cells=cells, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references, symlinks=None, processed=0)
+            node = Node(name, label=label, id=id, note=note, abbr=abbr, kids=children, cells=cells, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references, symlinks=None, processed=0)
 
             if name in nodes:
                 # TEST: anatomical structures' name already used
@@ -534,7 +556,7 @@ if __name__ == "__main__":
                 nodes[name] = node
         else:
             # Feature class is used to store both cells and biomarkers.
-            feature = Feature(name, feature_type, label=label, id=id, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references)
+            feature = Feature(name, feature_type, label=label, id=id, note=note, abbr=abbr, genes=genes, proteins=proteins, proteoforms=proteoforms, lipids=lipids, metabolites=metabolites, ftu=ftu, references=references)
             if name in features:
                 # TEST: feature name already used
                 error = "ERROR: all features must have a unique name."

@@ -139,3 +139,5 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 
 1. The program should validate the biomarkers using the TYPE field designation.
 1. Export ASCT+B table as CSV file.
+1. Need to allow for case-independence. At present if a cell type is defined with upper cases and applied to a structure in lower case then the program will consider these different entities and throw an error.
+1. Need better example and docs.

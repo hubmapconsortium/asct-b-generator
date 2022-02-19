@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 '''
-- include "notes" and "ABBR" (abbreviation) fields for each feature
+TODO:
 - need better demo and more clear instructions. Use color coding in demo and documentation.
 - use a real world demo, perhaps defining a family tree.
 - label = Uberon RDFS label
@@ -44,6 +44,11 @@ DEBUG = False
 
 # number of columns in the input file
 INPUT_COLUMNS = 15
+
+# number of lines expected as the header. This row count includes the
+# descriptive text at the top of the input file and also the row of
+# column-specific headers
+HEADER_LENGTH = 11
 
 # print the tree to the command line
 print_tree = False
@@ -152,7 +157,8 @@ def get_biomarker_header(biomarker, max_depth):
         output += get_header_block(biomarker, depth) + "\t"
     return output
 
-def print_ASCTB_header(max_AS_depth):
+
+def print_column_header(max_AS_depth):
     global max_genes, out_file
 
     header = ""
@@ -259,7 +265,7 @@ def print_ASCTB_table():
     # total number of anatomical structure levels
     max_AS_depth = len(levels)
 
-    print_ASCTB_header(max_AS_depth)
+    print_column_header(max_AS_depth)
 
     # we need to track which AS level we're at, so we can pad as
     # needed when we add cells.
@@ -465,23 +471,27 @@ if __name__ == "__main__":
     process_arguments()
 
     contents = in_file.readlines()
-    headerLine = True
+    lineCount = 0
     for line in contents:
+        # process the header lines here
+        if lineCount < HEADER_LENGTH:
+            # don't print the column headers, just the descriptive
+            # text that's included before the column header.
+            if lineCount < (HEADER_LENGTH - 1):
+                out_file.write(line)
+            lineCount += 1
+            continue
+
         # parse the tab-delimited line
         line_as_list = re.split(r'\t', line.rstrip('\n'))
         # make sure the line contains the appropriate number of fields
         if len(line_as_list) != INPUT_COLUMNS:
-            error = "ERROR: incorrect number of fields in line. The tab-delimited line should contain " + INPUT_COLUMNS + "  fields: "
+            error = "ERROR: incorrect number of fields in line. The tab-delimited line should contain the following " + str(INPUT_COLUMNS) + " fields: "
             error += "\n\tname, label, ID, node, abbreviation, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references"
             error += "\n\tNumber of fields found in line: " + str(len(line_as_list))
             error += "\n\tLine: " + line
             exit_with_error(error)
         name, label, id, note, abbr, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = line_as_list
-
-        # the first line is a header line, which we skip here
-        if headerLine:
-            headerLine = False
-            continue
 
         # clean up white spaces
         name = name.strip()

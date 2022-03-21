@@ -20,21 +20,20 @@ Feb 15, 2022:
 
 **v1.0** - Feb 14, 2022: Removed the (erroneous) assumption that an anatomical structure can only have a single parent, added more validation of the inputs, added debugging output options, and better handle command line arguments. Also various bug fixes.
 
+These are the significant differences from version v0.1 and v1.0.
+
+    1. The command line arguments have been greatly simplified.
+    2. The number of AS levels is automatically computed.
+    3. The input file has changed with this release. Cells are listed in a separate column from the children column.
+    4. Biomarkers and references can now be added to any anatomical structure.
+    5. The anytree Python module is required.
+    6. A header is autogenerate in the output file.
+    7. A DOT file can be generated to display the tree in Graphviz.
+    8. Lots of tests to validate the input file
+
 **v1.0-beta** - Feb 11, 2022: This is a complete rewrite of the program. This version has none of the limitations from the alpha version, it includes more data validation, and requires less user intervention. 
 
 **v0.1-alpha** - Feb 2, 2022: This is a proof of concept and not meant for production use.
-
-## Differences
-
-These are the significant differences from version v0.1-alpha and v1.0.
-  1. The command line arguments have been greatly simplified.
-  2. The number of AS levels is automatically computed.
-  3. The input file has changed with this release. Cells are listed in a separate column from the children column.
-  4. Biomarkers and references can now be added to any anatomical structure.
-  5. The anytree Python module is required.
-  6. A header is autogenerate in the output file.
-  7. A DOT file can be generated to display the tree in Graphviz.
-  8. Lots of tests to validate the input file.
 
 ## Assumptions
 

@@ -43,6 +43,7 @@ The following assumptions are built into the program.
   2. All anatomical structures must be uniquely named, for example, there can not be two structures called "ovary" but there can be "left ovary" and "right ovary".
   3. Cell type is only one level.
   3. Commas can not be used in names for anatomical structures, cells, or features.
+  3. ***It is assumed that the "author preferred name" is unique across anatomical structures and ontology IDs.***
 
 ## Data validation
 
@@ -141,3 +142,4 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 1. Export ASCT+B table as CSV file.
 1. Need to allow for case-independence. At present if a cell type is defined with upper cases and applied to a structure in lower case then the program will consider these different entities and throw an error.
 1. Need better example and docs.
+1. The program should allow for non-unique "author preferred name" field values.

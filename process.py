@@ -172,9 +172,9 @@ def print_column_header(max_AS_depth):
 
     # add biomarkers
     header += get_biomarker_header("BGene", max_genes)
-    header += get_biomarker_header("BProteins", max_proteins)
-    header += get_biomarker_header("BProteoforms", max_proteoforms)
-    header += get_biomarker_header("BLipids", max_lipids)
+    header += get_biomarker_header("BProtein", max_proteins)
+    header += get_biomarker_header("BProteoform", max_proteoforms)
+    header += get_biomarker_header("BLipid", max_lipids)
     header += get_biomarker_header("BMetabolites", max_metabolites)
     header += get_biomarker_header("FTU", max_ftu)
 

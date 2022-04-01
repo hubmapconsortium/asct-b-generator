@@ -142,3 +142,4 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 1. Need to allow for case-independence. At present if a cell type is defined with upper cases and applied to a structure in lower case then the program will consider these different entities and throw an error.
 1. Need better example and docs.
 1. The program should allow for non-unique "author preferred name" field values.
+1. Test if a parent has a child which is actually the parent.

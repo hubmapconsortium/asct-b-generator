@@ -138,8 +138,33 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 ## Known problems and limitations
 
 1. The program should validate the biomarkers using the TYPE field designation.
+
 1. Export ASCT+B table as CSV file.
+
 1. Need to allow for case-independence. At present if a cell type is defined with upper cases and applied to a structure in lower case then the program will consider these different entities and throw an error.
+
 1. Need better example and docs.
+
 1. The program should allow for non-unique "author preferred name" field values.
+
 1. Test if a parent has a child which is actually the parent.
+
+1. There is a bug in Excel where by when generating TSV or CSV files, it may incorrectly include a lot of empty COLUMNS. For example, if the input file only has 15 columns of data, Excel may generate a TSV or CSV file that includes 30 columns that correctly includes the 15 columns of data and another 15 empty columns. This causes the program to error. The program needs to include a workaround for this issue. 
+
+   ```
+   ERROR: incorrect number of fields in line. The tab-delimited line should contain the following 15 fields: 
+   	name, label, ID, node, abbreviation, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references
+   	Number of fields found in line: 
+   ```
+
+1. There is a bug in Excel where by when generating TSV or CSV files, it may incorrectly include a lot of empty ROWS. For example, if the input file only has 100 rows of data, Excel may generate a TSV or CSV file that includes 500 rows that correctly includes the 100 rows of data and another 400 empty rows. This causes the program to error. The program needs to include a workaround for this issue. 
+
+   ```
+   ERROR: all features must have a unique name.
+   	[ type:]
+   	[ type:]
+   ```
+
+   
+
+   

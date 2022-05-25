@@ -192,12 +192,19 @@ def print_column_header(max_AS_depth):
 
 def get_data_block(feature):
     """
-    Generates a triplet for a feature
+    Generates a set of values for a non-reference feature.
     """
     return feature.name + "\t" + feature.label + "\t" + feature.id + "\t" + feature.note + "\t" + feature.abbr
 
 
-def add_biomarkers(elements, max_depth):
+def get_reference_block(feature):
+    """
+    Generates a set of values for a reference. References only have 3 columns where as biomarkers contain 5 columns.
+    """
+    return feature.name + "\t" + feature.label + "\t" + feature.id
+
+
+def add_biomarkers(elements, max_depth, is_reference):
     """
     Outputs the biomarker data and/or tabs as appropriate
     """
@@ -216,7 +223,10 @@ def add_biomarkers(elements, max_depth):
                     error = "ERROR: feature hasn't been defined. Please add a row to the input that defines this feature."
                     error += "\n\tFeature: " + element
                     exit_with_error(error)
-            output += get_data_block(features[element]) + "\t"
+            if is_reference:
+                output += get_reference_block(features[element]) + "\t"
+            else:
+                output += get_data_block(features[element]) + "\t"
             count += 1
     if count < max_depth:
         output += "\t\t\t\t\t" * (max_depth-count)
@@ -235,13 +245,13 @@ def add_features(record, element):
     count = 0
 
     # add biomarkers
-    record += add_biomarkers(element.genes, max_genes)
-    record += add_biomarkers(element.proteins, max_proteins)
-    record += add_biomarkers(element.proteoforms, max_proteoforms)
-    record += add_biomarkers(element.lipids, max_lipids)
-    record += add_biomarkers(element.metabolites, max_metabolites)
-    record += add_biomarkers(element.ftu, max_ftu)
-    record += add_biomarkers(element.references, max_references)
+    record += add_biomarkers(element.genes, max_genes, False)
+    record += add_biomarkers(element.proteins, max_proteins, False)
+    record += add_biomarkers(element.proteoforms, max_proteoforms, False)
+    record += add_biomarkers(element.lipids, max_lipids, False)
+    record += add_biomarkers(element.metabolites, max_metabolites, False)
+    record += add_biomarkers(element.ftu, max_ftu, False)
+    record += add_biomarkers(element.references, max_references, True)
 
     record += "\n"
     out_file.write(record)

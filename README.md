@@ -157,6 +157,8 @@ McKay et al 1961	McKay, D., Pinkerton, J., Hertig, A. & Danziger, S. (1961). The
 
 1. If there are dulicate references in a comma separated list of references (column 15) this causes an error claiming a feature hasn't been defined when actually the error is about duplications in the comma separated list of features. The program needs to test for duplications in feature lists.
 
+1. The program requires UTF-8 encoding.
+
 1. There is a bug in Excel where by when generating TSV or CSV files, it may incorrectly include a lot of empty COLUMNS. For example, if the input file only has 15 columns of data, Excel may generate a TSV or CSV file that includes 30 columns that correctly includes the 15 columns of data and another 15 empty columns. This causes the program to error. The program needs to include a workaround for this issue. 
 
    ```

@@ -30,12 +30,13 @@ Assumptions:
   or features.
 '''
 
+from os import dup
 import sys
 import argparse
 import csv
 from anytree import Node, SymlinkNode, RenderTree, AsciiStyle, LevelOrderGroupIter, Walker
 from anytree.exporter import DotExporter
-from typing import List
+from typing import List, Tuple, Dict
 
 
 ################################################
@@ -46,46 +47,41 @@ DEBUG = False
 # number of columns in the input file
 INPUT_COLUMNS = 15
 
-# number of lines expected as the header. This row count includes the
-# descriptive text at the top of the input file and also the row of
-# column-specific headers
-HEADER_LENGTH = 11
-
 # print the tree to the command line
-print_tree = False
+print_tree:bool = False
 
 # requiring each anatomical structure to have one and only one
 # parent. When true, if the same sub-structure exists in multiple
 # parent-structures, then each child structure would need to be
 # uniquely named.
-only_on_parent = False
+only_one_parent:bool = False
 
 # if true, we will automatically generate missing cells, biomarkers
 # and references. The generated ones will contain no secondary
 # details. Anatomical structures must be defined.
-missing_feature_ok = False
+missing_feature_ok:bool = False
 
 # all anatomical structures
-nodes = {}
+nodes:Dict[str,Node] = {}
 
 # the top level node
-tree_root = ""
+tree_root:Node = ""
 
 # all cells, biomarkers and references
-features = {}
+features:Dict[str,'Feature'] = {}
 
 # compute these based on the max number of biomarkers across nodes and
 # cells
-max_genes = 0
-max_proteins = 0
-max_proteoforms = 0
-max_lipids = 0
-max_metabolites = 0
-max_ftu = 0
+max_genes:int = 0
+max_proteins:int = 0
+max_proteoforms:int = 0
+max_lipids:int = 0
+max_metabolites:int = 0
+max_ftu:int = 0
 # we don't actually need to track the max level for references as it's
 # last data block, however, this is a hack to allow us to handle
 # references like the biomarkers.
-max_references = 0
+max_references:int = 0
 
 # the file handles
 dot_file = None
@@ -99,7 +95,7 @@ class Feature:
     Used to store cells as well as biomarkers and references
     """
     
-    def __init__(self, name, feature_type, label="", id="", note="", abbr="", **kwargs):
+    def __init__(self, name:str, feature_type:str, label="", id="", note="", abbr="", **kwargs)->None:
         self.name = name
         self.feature_type = feature_type
         self.label = label
@@ -114,7 +110,7 @@ class Feature:
         self.ftu = kwargs.get('ftu', None)
         self.references = kwargs.get('references', None)
 
-    def __str__(self):
+    def __str__(self)->str:
         out = "[" + self.name
         out += " type:" + self.feature_type
         if self.genes:
@@ -156,25 +152,23 @@ def get_biomarker_header(header:List[str])->List[str]:
     and appends biomarker headers to the same input list
     """
     output=[]
-    biomarkers=["BGene","BProtein","BProteoform","BLipid","BMetabolites","FTU"]
+    biomarkers_list=["BGene","BProtein","BProteoform","BLipid","BMetabolites","FTU"]
     depthList=[max_genes,max_proteins,max_proteoforms,max_lipids,max_metabolites,max_ftu]
-    for i in range(len(biomarkers)):
+    for i in range(len(biomarkers_list)):
         for depth in range(1, depthList[i]+1):
-            headers=get_header_block(biomarkers[i], depth)
+            headers=get_header_block(biomarkers_list[i], depth)
             output.append(headers)
-    for biomarker in output:
-        for bio in biomarker:
-            header.append(bio)
+    for biomarkers in output:
+        for biomarker in biomarkers:
+            header.append(biomarker)
     return header
 
 
-def print_column_header(max_AS_depth:int)->None:
+def print_column_header(max_AS_depth:int)->List[str]:
     """
-    Writes the column headers to excel file 
-    according to the depth of anatomical structure tree
+    Returns the column headers according to the 
+    depth of anatomical structure tree
     """
-    global max_genes, out_file
-
     header=[]
     colNameList=[]
     # add anatomical structures
@@ -188,25 +182,24 @@ def print_column_header(max_AS_depth:int)->None:
     colNameList=get_header_block("CT", 1)
     for cellHeaders in colNameList:
         header.append(cellHeaders)
-    
+    colNameList=[]
     # add the headers for biomarkers
     get_biomarker_header(header)
     
     # we handle references separately because their header details
     # differ from the biomarkers.
-    referenceHeader=[]
     for depth in range(1, max_references+1):
-        referenceHeader.append("REF/" + str(depth))
-        referenceHeader.append("REF/" + str(depth) + "/DOI")
-        referenceHeader.append("REF/" + str(depth) + "/NOTES")
-    for reference in referenceHeader:
+        colNameList.append("REF/" + str(depth))
+        colNameList.append("REF/" + str(depth) + "/DOI")
+        colNameList.append("REF/" + str(depth) + "/NOTES")
+    for reference in colNameList:
             header.append(reference)
-    csvwriter.writerow(header)
+    return header
 
 
-def get_data_block(feature:dict)->List[str]:
+def get_data_block(feature:Feature)->List[str]:
     """
-    Generates a set of values for a non-reference feature.
+    Returns a set of values for a non-reference feature.
     """
     dataBlockList=[]
     dataBlockList.append(feature.name)
@@ -217,9 +210,9 @@ def get_data_block(feature:dict)->List[str]:
     return dataBlockList
 
 
-def get_reference_block(feature:dict)->List[str]:
+def get_reference_block(feature:Feature)->List[str]:
     """
-    Generates a set of values for a reference. References only have 3 columns where as biomarkers contain 5 columns.
+    Returns a set of values for a reference. References only have 3 columns where as biomarkers contain 5 columns.
     """
     referenceBlockList=[]
     referenceBlockList.append(feature.name)
@@ -228,9 +221,9 @@ def get_reference_block(feature:dict)->List[str]:
     return referenceBlockList
 
     
-def add_biomarkers(elements, max_depth:int, is_reference:bool)->List[str]:
+def add_biomarkers(elements:List[str], max_depth:int, is_reference:bool)->List[str]:
     """
-    Outputs the biomarker data and/or empty cells as appropriate
+    Returns the biomarker data and/or empty cells as appropriate
     """
     global features, missing_feature_ok
     
@@ -264,7 +257,7 @@ def add_biomarkers(elements, max_depth:int, is_reference:bool)->List[str]:
                 output.append("")
     return output
 
-def add_features(record:list, element)->None:
+def add_features(record:list, element)->List[str]:
     """
     The argument (element) can be either an anatomical structure ("node")
     or a cell as they contain the same features.
@@ -273,28 +266,27 @@ def add_features(record:list, element)->None:
     # appropriately pad the output.
     
     # add biomarkers
-    allBiomarkers=[]
-    allBiomarkers.append(add_biomarkers(element.genes, max_genes, False))
-    allBiomarkers.append(add_biomarkers(element.proteins, max_proteins, False))
-    allBiomarkers.append(add_biomarkers(element.proteoforms, max_proteoforms, False))
-    allBiomarkers.append(add_biomarkers(element.lipids, max_lipids, False))
-    allBiomarkers.append(add_biomarkers(element.metabolites, max_metabolites, False))
-    allBiomarkers.append(add_biomarkers(element.ftu, max_ftu, False))
-    allBiomarkers.append(add_biomarkers(element.references, max_references, True))
+    allBiomarkers=[add_biomarkers(element.genes, max_genes, False),
+    add_biomarkers(element.proteins, max_proteins, False),
+    add_biomarkers(element.proteoforms, max_proteoforms, False),
+    add_biomarkers(element.lipids, max_lipids, False),
+    add_biomarkers(element.metabolites, max_metabolites, False),
+    add_biomarkers(element.ftu, max_ftu, False),
+    add_biomarkers(element.references, max_references, True)]
     
     for bioMarkers in allBiomarkers:
         for bioMarker in bioMarkers:
             record.append(bioMarker)
-    csvwriter.writerow(record)
+    return record
         
-def print_ASCTB_table()->None:
+def print_ASCTB_table()->Tuple[List[str],List[str]]:
     """
-    Print the ASCT+B table, stepping through the tree, one level at a
+    Return the ASCT+B table data, stepping through the tree, one level at a
     time and applying each of the relevant cells and features to the
     node.
     """
     global nodes, tree_root, features, missing_feature_ok
-    record=[]
+    features_data=[]
     # get a list of lists where the sub-lists are the nodes per level
     # of the tree. The list returned will appropriately include
     # Symlink'ed Nodes but it won't actually reference the Symlink but
@@ -303,7 +295,8 @@ def print_ASCTB_table()->None:
     levels = [[node.name for node in children] for children in LevelOrderGroupIter(tree_root)]
     # total number of anatomical structure levels
     max_AS_depth = len(levels)
-    print_column_header(max_AS_depth)
+    column_headers=print_column_header(max_AS_depth)
+    #print column headers in main
 
     # we need to track which AS level we're at, so we can pad as
     # needed when we add cells.
@@ -343,6 +336,7 @@ def print_ASCTB_table()->None:
                 dataBlockList=get_data_block(ancestor)
                 for dataBlock in dataBlockList:
                     anatomical_structure.append(dataBlock)
+                anatomical_structure_safe=anatomical_structure[:]
             
             # pad record, to account for structures that aren't as
             # deep as the maximum possible depth (max_AS_depth).
@@ -358,9 +352,11 @@ def print_ASCTB_table()->None:
             ###changes need to be done
             if node.genes or node.proteins or node.proteoforms or node.lipids or node.metabolites or node.ftu or node.references:
                 # skip the cell block
-                record = anatomical_structure.append("")
+                for padding in range(5):
+                    anatomical_structure_safe.append("")
                 # add features
-                add_features(record, node)
+                features_data=add_features(anatomical_structure_safe, node)
+                #print featuresdata in main
                 node_output = True
 
             # add cells and cell-dependent features
@@ -383,7 +379,7 @@ def print_ASCTB_table()->None:
                     for cellData in cellfeatureDataBlockList:
                         anatomical_structure_safe.append(cellData)   
                     #add cell-specific features
-                    add_features(anatomical_structure_safe, cell_feature)
+                    features_data.append(add_features(anatomical_structure_safe, cell_feature))
                     node_output = True
                     anatomical_structure_safe=anatomical_structure[:]
 
@@ -391,11 +387,12 @@ def print_ASCTB_table()->None:
             # features then we output it here.
             ###CHANGES NEED TO BE DONE
             if not node_output:
-                anatomical_structure.append("" * (1 + max_genes + max_proteins + max_proteoforms + max_lipids + max_metabolites + max_ftu + max_references))
+                for space in range((1 + max_genes + max_proteins + max_proteoforms + max_lipids + max_metabolites + max_ftu + max_references)):
+                    anatomical_structure.append("")
                 for anatomy in anatomical_structure:
                     for structure in anatomy:
-                        record.append(structure)
-                csvwriter.writerow(record)
+                        features_data.append(structure)
+    return column_headers,features_data
                     
 def close_files()->None:
     """
@@ -417,7 +414,7 @@ def exit_with_error(error:str)->None:
     sys.exit(error)
 
 
-def process_input(input_string:str, max_depth:int)->[list,int]:
+def process_input(input_string:str, max_depth:int)->Tuple[List[str],int]:
     """
     Clean up the input, convert it to an array and compute the longest
     array, per feature type.
@@ -438,9 +435,11 @@ def process_input(input_string:str, max_depth:int)->[list,int]:
     return tmp, max_depth
 
 
-def build_tree(nodes_to_process:Node, dup_nodes:dict):
+def build_tree(nodes_to_process:Dict[str,Node], dup_nodes:dict)->dict:
+    """
+    Builds a tree
+    """
     global nodes, only_one_parent
-    
     for node in nodes_to_process:
         children = nodes[node].kids
         if children:
@@ -466,7 +465,6 @@ def build_tree(nodes_to_process:Node, dup_nodes:dict):
                     # parents. 
                     new_child = SymlinkNode(child_node, parent=nodes[node])
                     dup_nodes[new_child] = new_child
-                    
                     # We need to track duplicates because
                     # LevelOrderGroupIter() doesn't differentiate
                     # between a Node and a Symlink. Hence when we
@@ -485,7 +483,7 @@ def process_arguments()->None:
     """
     Handle command line arguments.
     """
-    global in_file, out_file, dot_file, print_tree, only_one_parent, missing_feature_ok, csvwriter
+    global in_file, out_file, dot_file, print_tree, only_one_parent, missing_feature_ok
     
     
     parser = argparse.ArgumentParser(description="Generate ASCT+B table.")
@@ -503,7 +501,7 @@ def process_arguments()->None:
 
     # this will overwrite any existing file
     out_file = open(args.output, "w",newline='')
-    csvwriter = csv.writer(out_file)
+    # csvwriter = csv.writer(out_file)
 
     if args.dot:
         dot_file = open(args.output + ".dot", "w")
@@ -520,8 +518,14 @@ def process_arguments()->None:
 if __name__ == "__main__":
 
     process_arguments()
+    csvwriter = csv.writer(out_file)
     contents = csv.reader(in_file,delimiter="\t")
     lineCount = 0
+
+    # number of lines expected as the header. This row count includes the
+    # descriptive text at the top of the input file and also the row of
+    # column-specific headers
+    HEADER_LENGTH = 11
     
     for line in contents:
         if lineCount < HEADER_LENGTH:
@@ -533,13 +537,10 @@ if __name__ == "__main__":
         line_as_list=line
         # make sure the line contains the appropriate number of fields
         if len(line_as_list) != INPUT_COLUMNS:
-            error=[]
-            error.append("ERROR: incorrect number of fields in line. The tab-delimited line should contain the following " + str(INPUT_COLUMNS) + " fields: ")
-            error.append("name, label, ID, node, abbreviation, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references")
-            error.append("Number of fields found in line: " + str(len(line_as_list)))
-            error.append("Line: ")
-            for lin in line:
-                error.append(lin)
+            error = "ERROR: incorrect number of fields in line. The tab-delimited line should contain the following " + str(INPUT_COLUMNS) + " fields: "
+            error += "\n\tname, label, ID, node, abbreviation, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references"
+            error += "\n\tNumber of fields found in line: " + str(len(line_as_list))
+            error += "\n\tLine: " + str(line)
             exit_with_error(error)
         name, label, id, note, abbr, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = line_as_list
         # clean up white spaces
@@ -649,7 +650,10 @@ if __name__ == "__main__":
             tree_root = nodes[node]
 
     # print the ASCT+B table
-    print_ASCTB_table()
+    column_header,feature_data=print_ASCTB_table()
+    csvwriter.writerow(column_header)
+    for featureRow in feature_data:
+        csvwriter.writerow(featureRow)
 
     if DEBUG:
         # Height returns the number of edges, but we want the number of node levels.
@@ -666,14 +670,15 @@ if __name__ == "__main__":
                 print(node, nodes[node].parent.name)
 
         print("\nFeatures:")
-        for feature in features:
-            print(features[feature])
+        for feature_ in features:
+            print(features[feature_])
 
     if print_tree:
         print("\n", RenderTree(tree_root, style=AsciiStyle()).by_attr())
 
     if dot_file:
         for line in DotExporter(tree_root):
-            dot_file.write(line)
+            print("End line is:",line)
+            #dot_file.write(line)
 
     close_files()

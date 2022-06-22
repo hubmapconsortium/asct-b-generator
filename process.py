@@ -30,13 +30,12 @@ Assumptions:
   or features.
 '''
 
-from os import dup
 import sys
 import argparse
 import csv
 from anytree import Node, SymlinkNode, RenderTree, AsciiStyle, LevelOrderGroupIter, Walker
 from anytree.exporter import DotExporter
-from typing import List, Tuple, Dict
+from typing import List, Text, Tuple, Dict,TextIO
 
 
 ################################################
@@ -45,7 +44,7 @@ from typing import List, Tuple, Dict
 DEBUG = False
 
 # number of columns in the input file
-INPUT_COLUMNS = 15
+INPUT_COLUMNS:int = 15
 
 # print the tree to the command line
 print_tree:bool = False
@@ -61,11 +60,8 @@ only_one_parent:bool = False
 # details. Anatomical structures must be defined.
 missing_feature_ok:bool = False
 
-# all anatomical structures
-nodes:Dict[str,Node] = {}
-
 # the top level node
-tree_root:Node = ""
+tree_root:Node=""
 
 # all cells, biomarkers and references
 features:Dict[str,'Feature'] = {}
@@ -122,7 +118,7 @@ class Feature:
 ################################################
 # Functions
 
-def no_features(node:Node):
+def no_features(node:Node)->bool:
     """
     Check if a node contains any cells or features.
     """
@@ -221,12 +217,10 @@ def get_reference_block(feature:Feature)->List[str]:
     return referenceBlockList
 
     
-def add_biomarkers(elements:List[str], max_depth:int, is_reference:bool)->List[str]:
+def add_biomarkers(elements:List[str], max_depth:int, is_reference:bool,in_file:TextIO,out_file:TextIO,missing_feature_ok:bool,features:Dict[str,'Feature'])->List[str]:
     """
     Returns the biomarker data and/or empty cells as appropriate
     """
-    global features, missing_feature_ok
-    
     output = []
     count = 0
     if elements:
@@ -239,7 +233,7 @@ def add_biomarkers(elements:List[str], max_depth:int, is_reference:bool)->List[s
                 else:
                     error = "ERROR: feature hasn't been defined. Please add a row to the input that defines this feature."
                     error += "\n\tFeature: " + element
-                    exit_with_error(error)
+                    exit_with_error(error,in_file,out_file)
             if is_reference:
                 referenceList=get_reference_block(features[element])
                 if referenceList:
@@ -257,7 +251,7 @@ def add_biomarkers(elements:List[str], max_depth:int, is_reference:bool)->List[s
                 output.append("")
     return output
 
-def add_features(record:list, element)->List[str]:
+def add_features(record:list, element,in_file:TextIO,out_file:TextIO,missing_feature_ok:bool,features:Dict[str,'Feature'])->List[str]:
     """
     The argument (element) can be either an anatomical structure ("node")
     or a cell as they contain the same features.
@@ -266,26 +260,25 @@ def add_features(record:list, element)->List[str]:
     # appropriately pad the output.
     
     # add biomarkers
-    allBiomarkers=[add_biomarkers(element.genes, max_genes, False),
-    add_biomarkers(element.proteins, max_proteins, False),
-    add_biomarkers(element.proteoforms, max_proteoforms, False),
-    add_biomarkers(element.lipids, max_lipids, False),
-    add_biomarkers(element.metabolites, max_metabolites, False),
-    add_biomarkers(element.ftu, max_ftu, False),
-    add_biomarkers(element.references, max_references, True)]
+    allBiomarkers=[add_biomarkers(element.genes, max_genes, False,in_file,out_file,missing_feature_ok,features),
+    add_biomarkers(element.proteins, max_proteins, False,in_file,out_file,missing_feature_ok,features),
+    add_biomarkers(element.proteoforms, max_proteoforms, False,in_file,out_file,missing_feature_ok,features),
+    add_biomarkers(element.lipids, max_lipids, False,in_file,out_file,missing_feature_ok,features),
+    add_biomarkers(element.metabolites, max_metabolites, False,in_file,out_file,missing_feature_ok,features),
+    add_biomarkers(element.ftu, max_ftu, False,in_file,out_file,missing_feature_ok,features),
+    add_biomarkers(element.references, max_references, True,in_file,out_file,missing_feature_ok,features)]
     
     for bioMarkers in allBiomarkers:
         for bioMarker in bioMarkers:
             record.append(bioMarker)
     return record
         
-def print_ASCTB_table()->Tuple[List[str],List[str]]:
+def print_ASCTB_table(in_file:TextIO,out_file:TextIO,missing_feature_ok:bool,nodes:Dict[str,Node],features:Dict[str,'Feature'],tree_root:Node)->Tuple[List[str],List[str]]:
     """
     Return the ASCT+B table data, stepping through the tree, one level at a
     time and applying each of the relevant cells and features to the
     node.
     """
-    global nodes, tree_root, features, missing_feature_ok
     features_data=[]
     # get a list of lists where the sub-lists are the nodes per level
     # of the tree. The list returned will appropriately include
@@ -306,7 +299,6 @@ def print_ASCTB_table()->Tuple[List[str],List[str]]:
         AS_depth += 1
         for node_name in level:
             node = nodes[node_name]
-
             # if we've already processed this node once, then we need
             # to use one of the Symlinks. LevelOrderGroupIter() only
             # returns the original Node in place of each of the
@@ -355,7 +347,7 @@ def print_ASCTB_table()->Tuple[List[str],List[str]]:
                 for padding in range(5):
                     anatomical_structure_safe.append("")
                 # add features
-                features_data=add_features(anatomical_structure_safe, node)
+                features_data=add_features(anatomical_structure_safe, node,in_file,out_file,missing_feature_ok,features)
                 #print featuresdata in main
                 node_output = True
 
@@ -372,14 +364,14 @@ def print_ASCTB_table()->Tuple[List[str],List[str]]:
                             error = "ERROR: cell hasn't been defined. Please add a row to the input that defines this cell."
                             error += "\n\tCell: " + cell
                             error += "\n\tAnatomical Structure: " + node.name
-                            exit_with_error(error)
+                            exit_with_error(error,in_file,out_file)
 
                     cell_feature = features[cell]
                     cellfeatureDataBlockList=get_data_block(cell_feature)
                     for cellData in cellfeatureDataBlockList:
                         anatomical_structure_safe.append(cellData)   
                     #add cell-specific features
-                    features_data.append(add_features(anatomical_structure_safe, cell_feature))
+                    features_data.append(add_features(anatomical_structure_safe, cell_feature,in_file,out_file,missing_feature_ok,features))
                     node_output = True
                     anatomical_structure_safe=anatomical_structure[:]
 
@@ -394,23 +386,21 @@ def print_ASCTB_table()->Tuple[List[str],List[str]]:
                         features_data.append(structure)
     return column_headers,features_data
                     
-def close_files()->None:
+def close_files(in_file:TextIO,out_file:TextIO)->None:
     """
     Prepare to quit
     """
-    global in_file, out_file
-
     in_file.close()
     out_file.close()
     if dot_file:
         dot_file.close()
 
 
-def exit_with_error(error:str)->None:
+def exit_with_error(error:str,in_file:TextIO,out_file:TextIO)->None:
     """
     Quit with an error
     """
-    close_files()
+    close_files(in_file,out_file)
     sys.exit(error)
 
 
@@ -435,11 +425,10 @@ def process_input(input_string:str, max_depth:int)->Tuple[List[str],int]:
     return tmp, max_depth
 
 
-def build_tree(nodes_to_process:Dict[str,Node], dup_nodes:dict)->dict:
+def build_tree(nodes_to_process:Dict[str,Node], dup_nodes:dict,in_file:TextIO,out_file:TextIO,only_one_parent:bool,nodes:Dict[str,Node])->Dict[Node,Node]:
     """
     Builds a tree
     """
-    global nodes, only_one_parent
     for node in nodes_to_process:
         children = nodes[node].kids
         if children:
@@ -448,7 +437,7 @@ def build_tree(nodes_to_process:Dict[str,Node], dup_nodes:dict)->dict:
                     error = "ERROR: anatomical structure hasn't been defined. Please add a row to the input that defines this structure."
                     error += "\n\tStructure: " + child
                     error += "\n\tParent: " + node                    
-                    exit_with_error(error)
+                    exit_with_error(error,in_file,out_file)
                     
                 child_node = nodes[child]
                 if child_node.parent:
@@ -458,7 +447,7 @@ def build_tree(nodes_to_process:Dict[str,Node], dup_nodes:dict)->dict:
                         error += "\n\tStructure: " + child
                         error += "\n\tParent: " + child_node.parent.name
                         error += "\n\tParent: " + node
-                        exit_with_error(error)
+                        exit_with_error(error,in_file,out_file)
 
                     # child already has a parent, so need to create a
                     # duplicate (Symlink) child, to allow for multiple
@@ -479,12 +468,11 @@ def build_tree(nodes_to_process:Dict[str,Node], dup_nodes:dict)->dict:
     return dup_nodes
 
 
-def process_arguments()->None:
+def process_arguments()->Tuple[TextIO,TextIO,bool,bool,bool]:
     """
     Handle command line arguments.
     """
-    global in_file, out_file, dot_file, print_tree, only_one_parent, missing_feature_ok
-    
+    global dot_file
     
     parser = argparse.ArgumentParser(description="Generate ASCT+B table.")
     parser.add_argument("-m", "--missing", help="Ignore missing cell types, biomarkers and references. For example, if a cell type is marked as containing a biomarker that wasn't defined, this flag would prevent the program from exiting with an error and instead the ASCT+B table would be generated. When the flag isn't used, all features must be defined.", action="store_true")
@@ -504,11 +492,13 @@ def process_arguments()->None:
     # csvwriter = csv.writer(out_file)
 
     if args.dot:
+        print("indotfile")
         dot_file = open(args.output + ".dot", "w")
 
     print_tree = args.verbose
     only_one_parent = args.unique
     missing_feature_ok = args.missing
+    return in_file,out_file,print_tree,only_one_parent,missing_feature_ok
 
 
 ################################################
@@ -517,7 +507,7 @@ def process_arguments()->None:
 # Cxecute script
 if __name__ == "__main__":
 
-    process_arguments()
+    in_file,out_file,print_tree,only_one_parent,missing_feature_ok=process_arguments()
     csvwriter = csv.writer(out_file)
     contents = csv.reader(in_file,delimiter="\t")
     lineCount = 0
@@ -526,7 +516,10 @@ if __name__ == "__main__":
     # descriptive text at the top of the input file and also the row of
     # column-specific headers
     HEADER_LENGTH = 11
-    
+
+    # all anatomical structures
+    nodes:Dict[str,Node] = {}
+
     for line in contents:
         if lineCount < HEADER_LENGTH:
             if lineCount<HEADER_LENGTH-1:
@@ -541,7 +534,7 @@ if __name__ == "__main__":
             error += "\n\tname, label, ID, node, abbreviation, feature type, children, cells, genes, proteins, proteoforms, lipids, metabolites, FTU, references"
             error += "\n\tNumber of fields found in line: " + str(len(line_as_list))
             error += "\n\tLine: " + str(line)
-            exit_with_error(error)
+            exit_with_error(error,in_file,out_file)
         name, label, id, note, abbr, feature_type, children_string, cells_string, genes_string, proteins_string, proteoforms_string, lipids_string, metabolites_string, ftu_string, references_string = line_as_list
         # clean up white spaces
         name = name.strip()
@@ -550,7 +543,7 @@ if __name__ == "__main__":
         if name.find(',') > -1:
             error = "ERROR: names can not include commas (',')."
             error += "\n\tName: " + name
-            exit_with_error(error)
+            exit_with_error(error,in_file,out_file)
 
         # convert strings into lists and get the number of levels per
         # feature type
@@ -578,7 +571,7 @@ if __name__ == "__main__":
             error += "\n\tChildren: " + str(children)
             error += "\n\tCells: " + str(cells)
             error += "\n\tGenes: " + str(genes)
-            exit_with_error(error)
+            exit_with_error(error,in_file,out_file)
         '''
         
         # TEST: check that biomarkers and references are only applied to AS and CT.
@@ -598,7 +591,7 @@ if __name__ == "__main__":
             error += "\n\tMetabolites: " + str(metabolites)
             error += "\n\tFTU: " + str(ftu)
             error += "\n\tReferences: " + str(references)
-            exit_with_error(error)
+            exit_with_error(error,in_file,out_file)
 
         # add record to the node or feature dictionaries
         if feature_type == "AS":
@@ -611,7 +604,7 @@ if __name__ == "__main__":
                 error = "ERROR: two anatomical structures can not have the same name. However, by default, a single anatomical structure can be the child of multiple parents."
                 error += "\n\t" + str(node)
                 error += "\n\t" + str(nodes[name])
-                exit_with_error(error)
+                exit_with_error(error,in_file,out_file)
             else:
                 nodes[name] = node
         else:
@@ -622,12 +615,12 @@ if __name__ == "__main__":
                 error = "ERROR: all features must have a unique name."
                 error += "\n\t" + str(feature)
                 error += "\n\t" + str(features[name])
-                exit_with_error(error)
+                exit_with_error(error,in_file,out_file)
             else:
                 features[name] = feature
 
     # everything loaded, so now build the tree, allowing for duplicate nodes
-    dup_nodes = build_tree(nodes, {})
+    dup_nodes = build_tree(nodes, {},in_file,out_file,only_one_parent,nodes)
     # add duplicate nodes to our global node dictionary
     nodes.update(dup_nodes)
 
@@ -635,7 +628,7 @@ if __name__ == "__main__":
     # processed as each run of build_tree() might generate more
     # duplicate nodes needing to be processed.
     while dup_nodes:
-        dup_nodes = build_tree(dup_nodes, {})
+        dup_nodes = build_tree(dup_nodes, {},in_file,out_file,only_one_parent,nodes)
         nodes.update(dup_nodes)
 
     # set tree_root to the root of the tree
@@ -646,11 +639,11 @@ if __name__ == "__main__":
                 error = "ERROR: anatomical structure(s) lacking parents."
                 error += "\n\tStructure: " + tree_root.name
                 error += "\n\tStructure: " + node
-                exit_with_error(error)
+                exit_with_error(error,in_file,out_file)
             tree_root = nodes[node]
 
     # print the ASCT+B table
-    column_header,feature_data=print_ASCTB_table()
+    column_header,feature_data=print_ASCTB_table(in_file,out_file,missing_feature_ok,nodes,features,tree_root)
     csvwriter.writerow(column_header)
     for featureRow in feature_data:
         csvwriter.writerow(featureRow)
@@ -681,4 +674,4 @@ if __name__ == "__main__":
             print("End line is:",line)
             #dot_file.write(line)
 
-    close_files()
+    close_files(in_file,out_file)

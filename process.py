@@ -448,7 +448,6 @@ def process_arguments()->Tuple[TextIO, TextIO, bool, bool, bool]:
 
     # this will overwrite any existing file
     out_file = open(args.output, "w", newline='')
-    # csvwriter = csv.writer(out_file)
 
     if args.dot:
         print("indotfile")

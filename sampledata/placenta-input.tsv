@@ -1,0 +1,153 @@
+Anatomical Structures, Cell Types and Biomarkers Table for Placenta v1.0														
+														
+Author Name(s):	Louise Laurent, Mana Parast, Kathleen Fisch													
+Author ORCID(s):	0000-0002-2095-7534; 000-0001-5963-2246; 0000-0002-0117-7444													
+Reviewer(s):	Drucilla Roberts													
+Reviewer ORCID(s):	0000-0002-9104-6674 													
+General Publication(s):														
+Data DOI:	https://doi.org/10.48539/HBM446.WGLG.755													
+Date:	5-6-2022													
+Version Number:	V1.0													
+NAME (REF DOI)	LABEL (REF DETAILS)	ID (REF NOTES)	NOTE	ABBR	TYPE	CHILDREN	CELLS	GENES	PROTEINS	PROTEOFORMS	LIPIDS	METABOLITES	FTU	REFERENCES (NAME/DOI)
+Placenta	placenta	UBERON:0001987			AS	umbilical cord, fetal membranes, placental disc								
+umbilical cord	umbilical cord	UBERON:0002331			AS	amnion, umbilical vein, umbilical arteries, mesenchyme of umbilical cord (Wharton's jelly)								
+fetal membranes					AS	amnion, chorion membrane, decidua								
+placental disc					AS	chorionic plate, basal plate, chorionic villous								
+umbilical vein 	umbilical vein 	UBERON:0002066			AS		vascular endothelial cells, pericytes, vascular smooth muscle cells							
+umbilical arteries 	umbilical artery	UBERON:0001310			AS		vascular endothelial cells, pericytes, vascular smooth muscle cells							
+mesenchyme of umbilical cord (Wharton's jelly)	mesenchyme of umbilical cord	UBERON:0003422	Wharton's jelly		AS		mesenchymal stromal cell of Wharton's jelly							
+amnion	amnion	UBERON:0000305			AS	amniotic ectoderm, amniotic mesoderm								
+chorion membrane	chorion membrane	UBERON:0003124			AS	chorionic mesoderm, chorionic ectoderm (from chorion membrane)								
+chorionic plate	chorionic plate	UBERON:0004027			AS	amniotic ectoderm, amniotic mesoderm, chorionic ectoderm (from chorionic plate), chorionic plate vessel								
+basal plate					AS	decidua	extravillous trophoblast (interstitial)							
+chorionic villous	chorionic villus	UBERON:0007106			AS	chorionic ectoderm (from chorionic plate), villous mesenchyme, stem villous vessel, villous capillary								
+amniotic ectoderm	amnion epithelium	UBERON:0003254			AS		amnion epithelial cell (AEC)							
+amniotic mesoderm	amniotic mesoderm	UBERON:0003262			AS		amnion mesenchymal stromal cell (AMSC)							
+chorionic ectoderm (from chorion membrane)	trophoblast	UBERON:0000088	from chorion membrane		AS		cytotrophoblast (CTB), extravillous trophoblast (EVT)							
+chorionic ectoderm (from chorionic plate)	trophoblast	UBERON:0000088	from chorionic plate		AS		cytotrophoblast (CTB), syncytiotrophoblast (STB), extravillous trophoblast (EVT)							
+chorionic mesoderm	chorionic mesenchyme	UBERON:0003265			AS		chorionic mesenchymal stromal cell (CMSC)							
+chorionic plate vessel					AS		vascular endothelial cells, pericytes, vascular smooth muscle cells							
+villous mesenchyme					AS		Hofbauer cell (HC), placental stromal cell (PSC)							
+stem villous vessel					AS		vascular endothelial cells, pericytes, vascular smooth muscle cells							
+villous capillary					AS		placental microvascular endothelial cells, pericytes							
+decidua	decidua	UBERON:0002450			AS	endometrial gland, endometrial stroma, decidual blood vessel, decidual lymphatic vessel								
+endometrial gland	endometrial gland	UBERON:0002451			AS		endometrial epithelial cell							
+endometrial stroma	endometrial stroma	UBERON:0002337			AS		endometrial stromal cell, uterine NK cell, uterine macrophage, regulatory T cell, cytotoxic T cell, B cell							
+decidual lymphatic vessel					AS		lymphatic endothelial cell							
+decidual blood vessel	endometrial blood vessel	UBERON:0015172			AS		endometrial microvascular endothelial cell (EMEC), extravillous trophoblast (endovascular)							
+amnion epithelial cell (AEC)	epithelial cell of amnion	UBERON:0002536			CT			KRT7, POU5F1, SOX2			SSEA3			DOI: 10.1016/j.jim.2003.03.001, DOI: 10.1053/plac.2000.0559, doi.org/10.1095/biolreprod.106.055244, doi: 10.1016/j.jri.2009.02.007, doi:10.1371/journal.pone.0146082, doi: 10.1016/j.jri.2009.02.007, doi:10.1371/journal.pone.0146082, doi: 10.1016/j.jri.2009.02.007, doi:10.17772/gp/1673, doi:10.1371/journal.pone.0146082
+amnion mesenchymal stromal cell (AMSC)					CT			CD44, THY1, ENG, NT5E						doi: 10.3390/cells1041061, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod51.4.739, DOI: 10.1095/biolreprod.108.075226, doi.org/10.1182/blood.V74.2.751.751, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1093/humrep/den051, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1
+chorionic mesenchymal stromal cell (CMSC)					CT			CD44, THY1, ENG, NT5E, NCAM1						doi: 10.3390/cells1041061, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod51.4.739, DOI: 10.1095/biolreprod.108.075226, doi.org/10.1182/blood.V74.2.751.751, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1093/humrep/den051, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, doi: 10.5966/sctm.2015-0022, doi: 10.1016/j.jcyt.2017.03.001, PMID: 1697563
+placental stromal cell (PSC)					CT			CD44, THY1, ENG, NT5E						doi: 10.3390/cells1041061, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod51.4.739, DOI: 10.1095/biolreprod.108.075226, doi.org/10.1182/blood.V74.2.751.751, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1093/humrep/den051, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1
+extravillous trophoblast (EVT)	extravillous trophoblast	CL:0008036			CT			HLAG, KRT7, MCAM, PLAC8						doi.org/10.1016/0198-8859(93)90138-Q, DOI: 10.1016/j.jim.2003.03.001, DOI: 10.1053/plac.2000.0559, doi.org/10.1095/biolreprod.106.055244, PMID: 8804361, doi: 10.1155/2021/6662201, doi: 10.1093/humrep/dem265, DOI: 10.1242/dev.148932
+extravillous trophoblast (interstitial)	extravillous trophoblast	CL:0008036			CT			HLAG, KRT7, MCAM, PLAC8						doi.org/10.1016/0198-8859(93)90138-Q, DOI: 10.1016/j.jim.2003.03.001, DOI: 10.1053/plac.2000.0559, doi.org/10.1095/biolreprod.106.055244, PMID: 8804361, doi: 10.1155/2021/6662201, doi: 10.1093/humrep/dem265, DOI: 10.1242/dev.148932
+extravillous trophoblast (endovascular)	extravillous trophoblast	CL:0008036			CT			HLAG, KRT7, MCAM, CDH5						doi.org/10.1016/0198-8859(93)90138-Q, DOI: 10.1016/j.jim.2003.03.001, DOI: 10.1053/plac.2000.0559, doi.org/10.1095/biolreprod.106.055244, PMID: 8804361, doi: 10.1155/2021/6662201, doi: 10.1093/humrep/dem265, doi: 10.1172/JCI119387
+syncytiotrophoblast (STB)	syncytiotrophoblast	CL:0000525			CT			CGB3, CSH1, PSG4, KRT7, EGFR						DOI: 10.1146/annurev.bi.50.070181.002341, doi: 10.1056/NEJM197007232830408, doi: 10.1007/BF01628222, DOI: 10.1016/j.jim.2003.03.001, DOI: 10.1053/plac.2000.0559, doi.org/10.1095/biolreprod.106.055244, doi.org/10.1016/S0143-4004(05)80438-2, doi.org/10.1016/S0143-4004(05)80438-2
+cytotrophoblast (CTB)	cytotrophoblast	CL:0000523			CT			EGFR, TP63, KRT7						doi.org/10.1016/S0143-4004(05)80438-2, doi.org/10.1016/S0143-4004(05)80438-2, doi: 10.1016/j.ajpath.2014.08.006, DOI: 10.1016/j.jim.2003.03.001, DOI: 10.1053/plac.2000.0559, doi.org/10.1095/biolreprod.106.055244
+placental microvascular endothelial cells	placental villous capillary endothelial cell	CL:2000062			CT			MCAM, VWF, ESR2, RARA, RXRA						PMID: 8804361, doi: 10.1155/2021/6662201, doi: 10.1093/humrep/dem265, doi: 10.1290/1071-2690(2001)037<0408:IOECFH>2.0.CO;2, DOI: 10.1093/oxfordjournals.humrep.a136040, doi.org/10.1016/j.ajog.2009.01.025 
+Hofbauer cell (HC)	Hofbauer cell	CL:3000001			CT			CD163, FCGR1A, CD68						doi: 10.1016/j.placenta.2007.11.003, DOI: 10.1053/plac.2000.0559, PMID: 8014121
+endometrial epithelial cell					CT			KRT18, KRT19, EPCAM, FUT4						DOI: 10.1177/1933719118756745, DOI: 10.1177/1933719118756745, doi: 10.1186/s13287-018-0962-6, DOI: 10.1093/humrep/det285
+endometrial stromal cell	stromal cell of endometrium	CL:0002255			CT			CD44, THY1, ENG, MME						doi: 10.3390/cells1041061, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod51.4.739, DOI: 10.1095/biolreprod.108.075226, doi.org/10.1182/blood.V74.2.751.751, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1093/humrep/den051, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod.108.075226, doi: 10.1016/s1472-6483(10)61745-2
+uterine NK cell					CT			NCAM1						doi: 10.5966/sctm.2015-0022, doi: 10.1016/j.jcyt.2017.03.001
+uterine macrophage					CT			CD68, ITGAX, CD209, MRC1						DOI: 10.1053/plac.2000.0559, doi: 10.1038/s41423-018-0008-0, doi: 10.1371/journal.pone.0002078, doi: 10.1371/journal.pone.0002078
+regulatory T cell	regulatory T cell 	CL:0000815			CT			FOXP3						DOI: 10.1038/ni904
+cytotoxic T cell	cytotoxic T cell	CL:0000910			CT			CD8A, CD28						PMID: 1672332, PMID: 7579453
+B cell	B cell	CL:0000236			CT			CD44, SDC1, HLA-DRA						doi: 10.3390/cells1041061, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod51.4.739, DOI: 10.1095/biolreprod.108.075226, doi.org/10.1182/blood.V74.2.751.751, doi: 10.1091/mbc.1.1.27, doi:10.1093/intimm/7.7.1087
+endometrial microvascular endothelial cell (EMEC)	endometrial microvascular endothelial cells	CL:2000091			CT			MCAM, VWF						PMID: 8804361, doi: 10.1155/2021/6662201, doi: 10.1093/humrep/dem265, doi: 10.1290/1071-2690(2001)037<0408:IOECFH>2.0.CO;2, DOI: 10.1093/oxfordjournals.humrep.a136040
+mesenchymal stromal cell of Wharton's jelly	mesenchymal stem cell of Wharton's jelly	CL:0002568			CT			CD44, THY1, ENG, NT5E						doi: 10.3390/cells1041061, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod51.4.739, DOI: 10.1095/biolreprod.108.075226, doi.org/10.1182/blood.V74.2.751.751, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1093/humrep/den051, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1, DOI: 10.1095/biolreprod.108.075226, doi: 10.3390/cells1041061, doi: 10.5966/sctm.2015-0022, doi: 10.3346/jkms.2012.27.8.857, doi: 10.1016/j.jcyt.2017.03.001, doi: 10.1186/s13287-017-0757-1
+vascular endothelial cells	blood vessel endothelial cell	CL:0000071			CT			MCAM, VWF, PECAM1						PMID: 8804361, doi: 10.1155/2021/6662201, doi: 10.1093/humrep/dem265, doi: 10.1290/1071-2690(2001)037<0408:IOECFH>2.0.CO;2, DOI: 10.1093/oxfordjournals.humrep.a136040, doi.org/10.1371/journal.pone.0169849, doi.org/10.1371/journal.pone.0169849
+pericytes	pericyte cell	CL:0000669			CT			DES, ACTA2, PDGFRB, CSPG4						DOI: 10.1016/0014-4800(90)90037-e, DOI: 10.1007/s00441-003-0745-x, doi: 10.1038/ng.2007.6., DOI: 10.1007/s00441-003-0745-x, DOI: 10.1007/s00441-003-0745-x, DOI: 10.1007/s00441-003-0745-x
+vascular smooth muscle cells	vascular associated smooth muscle cell	CL:0000359			CT			DES, ACTA2						DOI: 10.1016/0014-4800(90)90037-e, DOI: 10.1007/s00441-003-0745-x, doi: 10.1038/ng.2007.6., DOI: 10.1007/s00441-003-0745-x
+lymphatic endothelial cell	endothelial cell of lymphatic vessel	CL:0002138			CT			PECAM1, PDPN						doi.org/10.1371/journal.pone.0169849, doi.org/10.1371/journal.pone.0169849, doi.org/10.1371/journal.pone.0169849
+POU5F1	POU class 5 homeobox 1	HGNC:9221			Gene									
+SOX2	SRY-box transcription factor 2	HGNC:11195			Gene									
+CD44	CD44 molecule (Indian blood group)	HGNC:1681			Gene									
+THY1	Thy-1 cell surface antigen	HGNC:11801			Gene									
+ENG	endoglin	HGNC:3349			Gene									
+NT5E	5'-nucleotidase ecto	HGNC:8021			Gene									
+NCAM1	neural cell adhesion molecule 1	HGNC: 7656			Gene									
+CGB3	chorionic gonadotropin subunit beta 3	HGNC:1886			Gene									
+CSH1	chorionic somatomammotropin hormone 1	HGNC:2440			Gene									
+PSG4	pregnancy specific beta-1-glycoprotein 4	HGNC:9521			Gene									
+KRT7	keratin 7	HGNC:6445			Gene									
+HLAG	major histocompatibility complex, class I, G	HGNC:4964			Gene									
+MCAM	melanoma cell adhesion molecule	HGNC:6934			Gene									
+EGFR	epidermal growth factor receptor	HGNC:3236			Gene									
+TP63	tumor protein p63	HGNC:15979			Gene									
+VWF	von Willebrand factor	HGNC:12726			Gene									
+ESR2	estrogen receptor 2	HGNC:3468			Gene									
+RARA	retinoic acid receptor alpha	HGNC:9864			Gene									
+RXRA	retinoid X receptor alpha	HGNC:10477			Gene									
+CD163	CD163 molecule	HGNC:1631			Gene									
+FCGR1A	Fc gamma receptor Ia	HGNC:3613			Gene									
+CD68	CD68 molecule	HGNC:1693			Gene									
+KRT18	keratin 18	HGNC:6427			Gene									
+KRT19	keratin 19	HGNC:6436			Gene									
+EPCAM	epithelial cell adhesion molecule	HGNC:11529			Gene									
+MME	membrane metalloendopeptidase	HGNC: 7154			Gene									
+CD13	alanyl aminopeptidase, membrane	HGNC: 500			Gene									
+ITGAX	integrin subunit alpha X	HGNC:6152			Gene									
+CD209	CD209 molecule	HGNC:1641			Gene									
+MRC1	mannose receptor C-type 1	HGNC:7228			Gene									
+FOXP3	forkhead box P3	HGNC:6106			Gene									
+CD8A	CD8a molecule	HGNC:1706			Gene									
+CD28	CD28 molecule	HGNC:1653			Gene									
+SDC1	syndecan 1	HGNC:10658			Gene									
+HLA-DRA	Major Histocompatibility Complex, Class II, DR Alpha	HGNC: 4947	It appears that the well-recognized B-cell marker CD78/CDw78 is an antigen that is expressed as part of the MHC class II molecule		Gene									
+PECAM1	platelet and endothelial cell adhesion molecule 1	HGNC: 8823 			Gene									
+PDPN	podoplanin	HGNC: 29602			Gene									
+CDH5	cadherin 5	HGNC: 1764			Gene									
+PLAC8	placenta associated 8	HGNC: 19254			Gene									
+DES	desmin	HGNC: 2770			Gene									
+ACTA2	actin alpha 2, smooth muscle	HGNC: 130			Gene									
+PDGFRB	platelet derived growth factor receptor beta	HGNC: 8804			Gene									
+CSPG4	chondroitin sulfate proteoglycan 4	HGNC: 2466 			Gene									
+FUT4	Fucosyltransferase 4	HGNC: 4015			Gene									
+SSEA3	Stage-specific embryonic antigen-3	LM:LMSP0502AE00			Lipid									
+doi: 10.1016/j.jri.2009.02.007	doi: 10.1016/j.jri.2009.02.007				Reference									
+doi: 10.3390/cells1041061	doi: 10.3390/cells1041061				Reference									
+doi: 10.5966/sctm.2015-0022	doi: 10.5966/sctm.2015-0022				Reference									
+DOI: 10.1146/annurev.bi.50.070181.002341	DOI: 10.1146/annurev.bi.50.070181.002341				Reference									
+doi: 10.1056/NEJM197007232830408	doi: 10.1056/NEJM197007232830408				Reference									
+doi: 10.1007/BF01628222	doi: 10.1007/BF01628222				Reference									
+DOI: 10.1016/j.jim.2003.03.001	DOI: 10.1016/j.jim.2003.03.001				Reference									
+doi.org/10.1016/0198-8859(93)90138-Q	doi.org/10.1016/0198-8859(93)90138-Q				Reference									
+PMID: 8804361	PMID: 8804361				Reference									
+doi.org/10.1016/S0143-4004(05)80438-2	doi.org/10.1016/S0143-4004(05)80438-2				Reference									
+doi: 10.1016/j.ajpath.2014.08.006	doi: 10.1016/j.ajpath.2014.08.006				Reference									
+doi: 10.1290/1071-2690(2001)037<0408:IOECFH>2.0.CO;2	doi: 10.1290/1071-2690(2001)037<0408:IOECFH>2.0.CO;2				Reference									
+doi.org/10.1016/j.ajog.2009.01.025	doi.org/10.1016/j.ajog.2009.01.025				Reference									
+doi: 10.1016/j.placenta.2007.11.003	doi: 10.1016/j.placenta.2007.11.003				Reference									
+PMID: 8014121	PMID: 8014121				Reference									
+DOI: 10.1053/plac.2000.0559	DOI: 10.1053/plac.2000.0559				Reference									
+DOI: 10.1177/1933719118756745	DOI: 10.1177/1933719118756745				Reference									
+doi: 10.1186/s13287-018-0962-6	doi: 10.1186/s13287-018-0962-6				Reference									
+doi: 10.1016/s1472-6483(10)61745-2	doi: 10.1016/s1472-6483(10)61745-2				Reference									
+PMID: 1697563	PMID: 1697563				Reference									
+doi: 10.1038/s41423-018-0008-0	doi: 10.1038/s41423-018-0008-0				Reference									
+doi: 10.1371/journal.pone.0002078	doi: 10.1371/journal.pone.0002078				Reference									
+DOI: 10.1038/ni904	DOI: 10.1038/ni904				Reference									
+PMID: 1672332	PMID: 1672332				Reference									
+PMID: 7579453	PMID: 7579453				Reference									
+doi: 10.1091/mbc.1.1.27	doi: 10.1091/mbc.1.1.27				Reference									
+doi:10.1093/intimm/7.7.1087	doi:10.1093/intimm/7.7.1087				Reference									
+doi.org/10.1371/journal.pone.0169849	doi.org/10.1371/journal.pone.0169849				Reference									
+doi: 10.1172/JCI119387	doi: 10.1172/JCI119387				Reference									
+DOI: 10.1242/dev.148932	DOI: 10.1242/dev.148932				Reference									
+DOI: 10.1016/0014-4800(90)90037-e	DOI: 10.1016/0014-4800(90)90037-e				Reference									
+doi: 10.1038/ng.2007.6.	doi: 10.1038/ng.2007.6.				Reference									
+DOI: 10.1007/s00441-003-0745-x	DOI: 10.1007/s00441-003-0745-x				Reference									
+DOI: 10.1093/humrep/det285	DOI: 10.1093/humrep/det285				Reference									
+DOI: 10.1093/oxfordjournals.humrep.a136040	DOI: 10.1093/oxfordjournals.humrep.a136040				Reference									
+doi: 10.1155/2021/6662201	doi: 10.1155/2021/6662201				Reference									
+DOI: 10.1095/biolreprod.108.075226	DOI: 10.1095/biolreprod.108.075226				Reference									
+doi: 10.1186/s13287-017-0757-1	doi: 10.1186/s13287-017-0757-1				Reference									
+doi.org/10.1095/biolreprod.106.055244	doi.org/10.1095/biolreprod.106.055244				Reference									
+doi.org/10.1182/blood.V74.2.751.751	doi.org/10.1182/blood.V74.2.751.751				Reference									
+DOI: 10.1093/humrep/den051	DOI: 10.1093/humrep/den051				Reference									
+DOI: 10.1095/biolreprod51.4.739	DOI: 10.1095/biolreprod51.4.739				Reference									
+doi: 10.1016/j.jcyt.2017.03.001	doi: 10.1016/j.jcyt.2017.03.001				Reference									
+doi: 10.3346/jkms.2012.27.8.857	doi: 10.3346/jkms.2012.27.8.857				Reference									
+doi: 10.1093/humrep/dem265	doi: 10.1093/humrep/dem265				Reference									
+doi:10.1371/journal.pone.0146082	doi:10.1371/journal.pone.0146082				Reference									
+doi:10.17772/gp/1673	doi:10.17772/gp/1673				Reference									

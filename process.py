@@ -267,7 +267,7 @@ def print_asctb_table(
 
             # compute the AS level (ie depth of tree), so we can pad
             # as needed when we add cells.
-            AS_depth = len(walked)
+            as_depth = len(walked)
             
             # add all ancestral anatomical structures to the data
             # record being output.

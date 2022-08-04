@@ -242,7 +242,6 @@ def print_asctb_table(
 
     walker = Walker()
     for level in levels:
-        as_depth += 1
         for node_name in level:
             node = nodes[node_name]
             # if we've already processed this node once, then we need

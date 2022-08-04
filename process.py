@@ -240,9 +240,6 @@ def print_asctb_table(
     column_headers = print_column_header(max_as_depth)
     #print column headers in main
 
-    # we need to track which AS level we're at, so we can pad as
-    # needed when we add cells.
-    as_depth = 0
     walker = Walker()
     for level in levels:
         as_depth += 1
@@ -269,6 +266,10 @@ def print_asctb_table(
             # ignore.
             walked = (root,) + walked
 
+            # compute the AS level (ie depth of tree), so we can pad
+            # as needed when we add cells.
+            AS_depth = len(walked)
+            
             # add all ancestral anatomical structures to the data
             # record being output.
             anatomical_structure = []

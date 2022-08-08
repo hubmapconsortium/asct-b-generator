@@ -268,7 +268,7 @@ def print_asctb_table(
             # compute the AS level (ie depth of tree), so we can pad
             # as needed when we add cells.
             as_depth = len(walked)
-            
+
             # add all ancestral anatomical structures to the data
             # record being output.
             anatomical_structure = []
@@ -283,20 +283,18 @@ def print_asctb_table(
                 for _ in range(5):
                     anatomical_structure.append("")
                 anatomical_structure_data = anatomical_structure[:]
-
             # track if we've printed the node in some form
             node_output = False
 
             # add cell-independent features here
-            ###changes need to be done
             if node.genes or node.proteins or node.proteoforms or node.lipids or node.metabolites\
             or node.ftu or node.references:
                 # skip the cell block
                 for _ in range(5):
                     anatomical_structure_data.append("")
                 # add features
-                features_data = add_features(anatomical_structure_data, node, in_file, out_file,\
-                                            dot_file, missing_feature_ok, features)
+                features_data.append(add_features(anatomical_structure_data, node, in_file, out_file,\
+                                            dot_file, missing_feature_ok, features))
                 #print featuresdata in main
                 node_output = True
 
@@ -329,14 +327,11 @@ def print_asctb_table(
 
             # if node is leaf and doesn't have any assigned cells or
             # features then we output it here.
-            ###CHANGES NEED TO BE DONE
             if not node_output:
                 for _ in range((1 + max_genes + max_proteins + max_proteoforms + max_lipids \
                                 + max_metabolites + max_ftu + max_references)):
                     anatomical_structure.append("")
-                for anatomy in anatomical_structure:
-                    for structure in anatomy:
-                        features_data.append(structure)
+                features_data.append(anatomical_structure)
     return column_headers, features_data
 
 def close_files(in_file: TextIO, out_file: TextIO, dot_file: TextIO)->None:

@@ -2,6 +2,12 @@
 
 Changelog for the ASCT+B Generator
 
+## 1.1.1 - 2022-08-08
+
+* Fixed alignment issues for the data with cell-independent features.
+* Fixed alignment issues where the node is leaf and doesn't have any assigned cells or features.
+* Fixed computing the depth of the anatomical structure.
+
 ## 1.1.0 - 2022-06-25
 
 * Added a feature to generate CSV files from TSV/CSV files.

@@ -458,7 +458,7 @@ def process_arguments()->Tuple[TextIO, TextIO, bool, bool, bool]:
     print_tree = args.verbose
     only_one_parent = args.unique
     missing_feature_ok = args.missing
-    return in_file, out_file, dot_file, print_tree, only_one_parent, missing_feature_ok,file_reader
+    return in_file, out_file, dot_file, print_tree, only_one_parent, missing_feature_ok, file_reader
 
 ################################################
 # Main
@@ -505,7 +505,7 @@ if __name__ == "__main__":
     max_references: int = 0
 
     INPUT_FILE, OUTPUT_FILE, DOT_FILE, PRINT_TREE, SINGLE_PARENT,\
-    IS_MISSING_FEATURE,CONTENTS = process_arguments()
+    IS_MISSING_FEATURE, CONTENTS = process_arguments()
     CSVWRITER = csv.writer(OUTPUT_FILE)
     LINECOUNT = 0
 

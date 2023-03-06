@@ -2,6 +2,10 @@
 
 Changelog for the ASCT+B Generator
 
+## 1.1.2 - 2023-03-06
+
+* Added the code to verify the delimiter used in the input file, and to read the file accordingly based on the identified delimiter.
+
 ## 1.1.1 - 2022-08-08
 
 * Fixed alignment issues for the data with cell-independent features.
